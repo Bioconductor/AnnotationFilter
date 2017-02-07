@@ -1,11 +1,11 @@
 Package: AnnotationFilters
 Title: Facilities for Filtering Bioconductor Annotation Resources
-Version: 0.0.1
+Version: 0.0.2
 Authors@R: c(
     person("Martin", "Morgan", email = "martin.morgan@roswellpark.org",
         role = "aut"),
     person("Johannes", "Rainer", email = "johannes.rainer@eurac.edu",
-        role = "aut")
+        role = "aut"),
     person("Bioconductor", "Maintainer", email="maintainer@bioconductor.org",
         role = "cre"))
 Description: This package provides class and other infrastructure to

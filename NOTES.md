@@ -4,4 +4,5 @@
 - testthat unit tests
 - file name correspondence between code `R/foo.R`, tests
   `tests/testthat/test_foo.R`, and documentation `man/foo.Rd`.
+- version bump on master commit
 - commits to master pass R CMD build && R CMD check
