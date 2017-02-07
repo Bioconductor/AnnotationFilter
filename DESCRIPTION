@@ -1,0 +1,18 @@
+Package: AnnotationFilters
+Title: Facilities for Filtering Bioconductor Annotation Resources
+Version: 0.0.1
+Authors@R: c(
+    person("Martin", "Morgan", email = "martin.morgan@roswellpark.org",
+        role = "aut"),
+    person("Johannes", "Rainer", email = "johannes.rainer@eurac.edu",
+        role = "aut")
+    person("Bioconductor", "Maintainer", email="maintainer@bioconductor.org",
+        role = "cre"))
+Description: This package provides class and other infrastructure to
+    implement filters for manipulating Bioconductor annotation
+    resources. The filters will be used by ensembldb, Organism.dplyr,
+    and other packages.
+Depends: R (>= 3.4.0)
+License: Artistic-2.0
+Encoding: UTF-8
+LazyData: true
