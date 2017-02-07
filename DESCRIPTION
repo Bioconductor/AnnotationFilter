@@ -1,6 +1,6 @@
 Package: AnnotationFilters
 Title: Facilities for Filtering Bioconductor Annotation Resources
-Version: 0.0.2
+Version: 0.0.3
 Authors@R: c(
     person("Martin", "Morgan", email = "martin.morgan@roswellpark.org",
         role = "aut"),
@@ -18,3 +18,4 @@ License: Artistic-2.0
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.0
+Suggests: testthat
