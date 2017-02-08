@@ -4,6 +4,8 @@
 
 .INT_FIELDS <- character()
 
+#' @rdname AnnotationFilter
+#' @export
 .AnnotationFilter <- setClass(
     "AnnotationFilter",
     representation(
@@ -136,4 +138,50 @@ setMethod("show", "AnnotationFilter", function(object){
     cat("class:", class(object),
         "\ncondition:", .condition(object),
         "\nvalue:", .value(object), "\n")
+})
+
+############################################################
+## Methods for the filter classes
+## 
+
+#' @aliases condition
+#' @description \code{condition,condition<-} get or set the \code{condition}
+#' value for the filter \code{object}.
+#' 
+#' @rdname AnnotationFilter
+#' @export
+setMethod("condition", "AnnotationFilter", function(object) {
+    .condition(object)
+})
+#' @aliases condition<-
+#'
+#' @param value The value for the object.
+#' 
+#' @importFrom methods validObject
+#' @rdname AnnotationFilter
+#' @export
+setReplaceMethod("condition", "AnnotationFilter", function(object, value) {
+    object@condition <- as.character(value)
+    if (validObject(object))
+        object
+})
+
+#' @aliases value
+#' @description \code{value,value<-} get or set the \code{value} for the filter
+#' \code{object}.
+#' 
+#' @rdname AnnotationFilter
+#' @export
+setMethod("value", "AnnotationFilter", function(object) {
+    .value(object)
+})
+#' @aliases value<-
+#' @rdname AnnotationFilter
+#' @export
+setReplaceMethod("value", "AnnotationFilter", function(object, value) {
+    if (.isCharacter(object))
+        value <- as.character(value)
+    object@value <- value
+    if (validObject(object))
+        object
 })

@@ -1,6 +1,6 @@
 Package: AnnotationFilters
 Title: Facilities for Filtering Bioconductor Annotation Resources
-Version: 0.0.3
+Version: 0.0.4
 Authors@R: c(
     person("Martin", "Morgan", email = "martin.morgan@roswellpark.org",
         role = "aut"),
@@ -12,10 +12,13 @@ Description: This package provides class and other infrastructure to
     implement filters for manipulating Bioconductor annotation
     resources. The filters will be used by ensembldb, Organism.dplyr,
     and other packages.
-Depends: R (>= 3.4.0)
-Imports: methods
+Depends:
+    R (>= 3.4.0)
+Imports:
+    methods
 License: Artistic-2.0
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.0.0
-Suggests: testthat
+RoxygenNote: 5.0.1
+Suggests:
+    testthat
