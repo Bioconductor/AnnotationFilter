@@ -4,6 +4,8 @@
 \name{AnnotationFilter-class}
 \alias{.AnnotationFilter}
 \alias{AnnotationFilter-class}
+\alias{SymbolFilter}
+\alias{SymbolFilter-class}
 \alias{condition}
 \alias{condition,AnnotationFilter-method}
 \alias{condition<-}
@@ -14,7 +16,14 @@
 \alias{value,AnnotationFilter-method}
 \alias{value<-}
 \alias{value<-,AnnotationFilter-method}
-\title{Filters for annotation objects}
+\title{Filters for annotation objects
+
+These functions are used to create filters for annotation
+resources.
+
+\code{supportedFilters()} lists all defined filters; filters are
+only available for tables containing the field on which the filter
+acts.}
 \usage{
 supportedFilters()
 
@@ -34,22 +43,17 @@ supportedFilters()
 \item{value}{The value for the object.}
 }
 \description{
-These functions are used to create filters for annotation
-resources.
-
 \code{condition,condition<-} get or set the \code{condition}
 value for the filter \code{object}.
 
 \code{value,value<-} get or set the \code{value} for the filter
 \code{object}.
 }
-\details{
-\code{supportedFilters()} lists all defined filters; filters are
-only available for tables containing the field on which the filter
-acts.
-}
 \examples{
 supportedFilters()
+
+## Create a SymbolFilter to filter on a gene's symbol.
+sf <- SymbolFilter("BCL2")
 
 }
 

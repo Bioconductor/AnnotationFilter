@@ -1,6 +1,6 @@
 .OPS <- c("==", "!=", "startsWith", "endsWith", ">", "<", ">=", "<=")
 
-.CHAR_FIELDS <- character()
+.CHAR_FIELDS <- c("symbol")
 
 .INT_FIELDS <- character()
 
@@ -27,33 +27,43 @@ setValidity("AnnotationFilter", function(object) {
     condition <- .condition(object)
     isCharacter <- .isCharacter(object)
     txt <- character()
-    if (length(condition) != 1L)
+    condNa <- any(is.na(condition))
+    condOne <- length(condition) == 1L
+    ## Check condition
+    if (!condOne)
         txt <- c(txt, "'condition' must be length 1")
-    if (!condition %in% .OPS)
+    if (condNa)
+        txt <- c(txt, "'condition' can not be NA")
+    if (!condNa && condOne && !condition %in% .OPS)
         txt <- c(txt,
                  sprintf("'condition' must be one of %s",
                          paste("'", .OPS, "'", collapse=", ")))
+    if (!condNa && condOne && condition  %in%
+        c("startsWith", "endsWith", ">", "<", ">=", "<=") && length(value) > 1L)
+        txt <- c(txt,
+                 paste0("'value' must be length 1 when condition is '",
+                        condition, "'"))
+    if (!condNa && condOne && condition  %in% c("startsWith", "endsWith") &&
+        !isCharacter)
+        txt <- c(txt,
+                 paste0("'", condition,
+                        "' can only work with character value"))
+    if (!condNa && condOne && condition  %in% c(">", "<", ">=", "<=") &&
+        isCharacter)
+        txt <- c(txt,
+                 paste0("'", condition,
+                        "' can only work with integer value"))
+    ## Check value
+    if (any(is.na(value)))
+        txt <- c(txt, "'value' can not be NA")
     if (isCharacter && !is.character(value))
         txt <- c(txt,
                  paste0("'", class(object),
                         "' can only take character value"))
-    if (!isCharacter && (!is.integer(value)) || is.na(value))
+    if (!isCharacter && !is.integer(value))
         txt <- c(txt,
                  paste0("'", class(object),
                         "' can only take integer value"))
-    if (condition  %in% c("startsWith", "endsWith", ">", "<", ">=", "<=") &&
-        length(value) > 1L)
-        txt <- c(txt,
-                 paste0("'value' must be length 1 when condition is '",
-                        condition, "'"))
-    if (condition  %in% c("startsWith", "endsWith") && !isCharacter)
-        txt <- c(txt,
-                 paste0("'", condition,
-                        "' can only work with character value"))
-    if (condition  %in% c(">", "<", ">=", "<=") && isCharacter)
-        txt <- c(txt,
-                 paste0("'", condition,
-                        "' can only work with integer value"))
     if (length(txt)) txt else TRUE
 })
 
@@ -90,7 +100,7 @@ setValidity("AnnotationFilter", function(object) {
         }
     function(value, condition = "==") {
         value <- as.value(value)
-        new(class, field=field, condition=condition,
+        new(class, field=field, condition = as.character(condition),
             value=value, .valueIsCharacter=.valueIsCharacter)
     }
 }
@@ -110,7 +120,9 @@ local({
     }
 })
 
-#' Filters for annotation objects
+#' @aliases SymbolFilter SymbolFilter-class
+#'
+#' @title Filters for annotation objects
 #'
 #' These functions are used to create filters for annotation
 #' resources.
@@ -124,6 +136,11 @@ local({
 #' @examples
 #' supportedFilters()
 #'
+#' ## Create a SymbolFilter to filter on a gene's symbol.
+#' sf <- SymbolFilter("BCL2")
+#'
+#' @export SymbolFilter
+#' @exportClass SymbolFilter
 #' @export
 supportedFilters <- function() {
     .fieldToClass(c(.CHAR_FIELDS, .INT_FIELDS))
