@@ -1,0 +1,77 @@
+---
+title: "Facilities for Filtering Bioconductor Annotation Resources"
+output:
+  BiocStyle::html_document:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Facilities for Filtering Bioconductor Annotation resources}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  %\VignettePackage{AnnotationFilters}
+---
+
+```{r style, echo = FALSE, results = 'asis', message=FALSE}
+BiocStyle::markdown()
+```
+
+**Package**: `r Biocpkg("AnnotationFilters")`<br />
+**Authors**: `r packageDescription("AnnotationFilters")[["Author"]] `<br />
+**Last modified:** `r file.info("AnnotationFilters.Rmd")$mtime`<br />
+**Compiled**: `r date()`
+
+
+# Introduction
+
+The `r Biocpkg("AnnotationFilters")` package provides filter classes and basic
+concepts for filtering of Bioconductor annotation resources.
+
+## Filter classes
+
+The filter classes provided by `AnnotationFilters` extend the `AnnotationFilter`
+class and allow to define the conditions for the filtering. Each field or
+feature is represented by its own filter class and each filter is defined by a
+`value` (the value to be used in the filter) and a `condition`
+(e.g. `"=="`). The `SymbolFilter` class for example is supposed to filter data
+based on gene symbols (used as the filter's values). Filter classes are grouped
+into `character` based filters (such as the `SymbolFilter`) and `integer` based
+filters (such as the `GeneSeqStartFilter`). The `character` based filters can
+take a single or multiple `character ` values and support conditions `"=="`,
+`"!="`, `"startsWith"` and `"endsWith"`. Integer filters can only take a single
+value and support, in addition to `"=="` and "`"!="`, also the conditions `">"`,
+`">="`, `"<"` and `"<="`. The name of a filter always matches its `field` (which
+in most cases will represent the name of the database column containing the
+corresponding features), with *snake case* replaced by *camel case* followed by
+*Filter*. The `field` for the `SymbolFilter` for example is `"symbol"` and the
+`field` for the `GeneSeqStartFilter` `"gene_seq_start"`. Filter are supposed to
+be *read only* and hence do not provide setter methods for their slots.
+
+In the example below we define a `SymbolFilter` to retrieve all entries from an
+annotation resource for a gene with the symbol *BCL2*.
+
+```{r simple-symbol-filt}
+library(AnnotationFilters)
+
+smbl <- SymbolFilter("BCL2")
+smbl
+```
+
+If we want to retrieve all entries a gene symbol starting with *BCL2* (such as
+*BCL2*, *BCL2L11* etc) we can use a `condition = "startsWith"`.
+
+```{r symbol-startsWith}
+smbl <- SymbolFilter("BCL2", condition = "startsWith")
+smbl
+```
+
+
+# Using `AnnotationFilters` in other packages
+
+In this section we show, on the example of the `r Biocpkg("ensembldb")` package,
+how `AnnotationFilters` can be used/imported in another package and how the
+actual filtering is carried out.
+
+# Session information
+
+```{r si}
+sessionInfo()
+```

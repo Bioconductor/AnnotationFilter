@@ -1,11 +1,12 @@
 .OPS <- c("==", "!=", "startsWith", "endsWith", ">", "<", ">=", "<=")
 
-.CHAR_FIELDS <- c("symbol")
+.CHAR_FIELDS <- c("exon_id", "exon_name", "gene_id", "genename", "gene_biotype",
+                  "entrez", "symbol", "tx_id", "tx_name", "tx_biotype",
+                  "protein_id", "uniprot", "seq_name", "seq_strand")
 
-.INT_FIELDS <- character()
+.INT_FIELDS <- c("cds_start", "cds_end", "exon_start", "exon_rank", "exon_end",
+                 "gene_start", "gene_end", "tx_start", "tx_end")
 
-#' @rdname AnnotationFilter
-#' @export
 .AnnotationFilter <- setClass(
     "AnnotationFilter",
     representation(
@@ -120,17 +121,63 @@ local({
     }
 })
 
-#' @aliases SymbolFilter SymbolFilter-class
+#' @aliases CdsStartFilter CdsEndFilter ExonIdFilter ExonNameFilter
+#' ExonStartFilter ExonEndFilter ExonRankFilter GeneIdFilter GenenameFilter
+#' GeneBiotypeFilter GeneStartFilter GeneEndFilter EntrezFilter SymbolFilter
+#' TxIdFilter TxNameFilter TxBiotypeFilter TxStartFilter TxEndFilter
+#' ProteinIdFilter UniprotFilter SeqNameFilter SeqStrandFilter
+#' AnnotationFilter-class CdsStartFilter-class CdsEndFilter-class
+#' ExonIdFilter-class ExonNameFilter-class ExonStartFilter-class
+#' ExonEndFilter-class ExonRankFilter-class GeneIdFilter-class
+#' GenenameFilter-class GeneBiotypeFilter-class GeneStartFilter-class
+#' GeneEndFilter-class EntrezFilter-class SymbolFilter-class TxIdFilter-class
+#' TxNameFilter-class TxBiotypeFilter-class TxStartFilter-class TxEndFilter-class
+#' ProteinIdFilter-class UniprotFilter-class SeqNameFilter-class
+#' SeqStrandFilter-class
 #'
+#' 
 #' @title Filters for annotation objects
 #'
-#' These functions are used to create filters for annotation
+#' @description These functions are used to create filters for annotation
 #' resources.
 #'
-#' \code{supportedFilters()} lists all defined filters; filters are
+#' \code{supportedFilters()} lists all defined filters; by default filters are
 #' only available for tables containing the field on which the filter
-#' acts.
+#' acts. See the vignette for a description to use filters for databases in which
+#' the database table column name differs from the default `field` of the filter.
 #'
+#' @usage CdsStartFilter(value, condition = "==")
+#' CdsEndFilter(value, condition = "==")
+#' ExonIdFilter(value, condition = "==")
+#' ExonNameFilter(value, condition = "==")
+#' ExonRankFilter(value, condition = "==")
+#' ExonStartFilter(value, condition = "==")
+#' ExonEndFilter(value, condition = "==")
+#' GeneIdFilter(value, condition = "==")
+#' GenenameFilter(value, condition = "==")
+#' GeneBiotypeFilter(value, condition = "==")
+#' GeneStartFilter(value, condition = "==")
+#' GeneEndFilter(value, condition = "==")
+#' EntrezFilter(value, condition = "==")
+#' SymbolFilter(value, condition = "==")
+#' TxIdFilter(value, condition = "==")
+#' TxNameFilter(value, condition = "==")
+#' TxBiotypeFilter(value, condition = "==")
+#' TxStartFilter(value, condition = "==")
+#' TxEndFilter(value, condition = "==")
+#' ProteinIdFilter(value, condition = "==")
+#' UniprotFilter(value, condition = "==")
+#' SeqNameFilter(value, condition = "==")
+#' SeqStrandFilter(value, condition = "==")
+#'
+#' @param value Value for the filter.
+#'
+#' @param condition character(1) defining the condition to be used in the filter.
+#' For numeric/integer filters one of \code{"=="}, \code{"!="}, \code{">"},
+#' \code{"<"}, \code{">="} and \code{"<="}. For character filter/values
+#' \code{"=="}, \code{"!="}, \code{"startsWith"} and \code{"endsWith"} are
+#' allowed. Default condition is "==".
+#' 
 #' @rdname AnnotationFilter
 #'
 #' @examples
@@ -138,9 +185,26 @@ local({
 #'
 #' ## Create a SymbolFilter to filter on a gene's symbol.
 #' sf <- SymbolFilter("BCL2")
+#' sf
 #'
-#' @export SymbolFilter
-#' @exportClass SymbolFilter
+#' ## Create a GeneStartFilter to filter based on the genes' chromosomal start
+#' ## coordinates
+#' gsf <- GeneStartFilter(10000, condition = ">")
+#' gsf
+#' 
+#' @export CdsStartFilter CdsEndFilter ExonIdFilter ExonNameFilter
+#' @export ExonStartFilter ExonEndFilter ExonRankFilter GeneIdFilter
+#' @export GenenameFilter GeneBiotypeFilter GeneStartFilter GeneEndFilter
+#' @export EntrezFilter SymbolFilter TxIdFilter TxNameFilter TxBiotypeFilter
+#' @export TxStartFilter TxEndFilter ProteinIdFilter UniprotFilter SeqNameFilter
+#' @export SeqStrandFilter
+#' 
+#' @exportClass AnnotationFilter CdsStartFilter CdsEndFilter ExonIdFilter
+#' ExonNameFilter ExonStartFilter ExonEndFilter ExonRankFilter GeneIdFilter
+#' GenenameFilter GeneBiotypeFilter GeneStartFilter GeneEndFilter EntrezFilter
+#' SymbolFilter TxIdFilter TxNameFilter TxBiotypeFilter TxStartFilter TxEndFilter
+#' ProteinIdFilter UniprotFilter SeqNameFilter SeqStrandFilter
+#'
 #' @export
 supportedFilters <- function() {
     .fieldToClass(c(.CHAR_FIELDS, .INT_FIELDS))
@@ -162,29 +226,17 @@ setMethod("show", "AnnotationFilter", function(object){
 ## 
 
 #' @aliases condition
-#' @description \code{condition,condition<-} get or set the \code{condition}
-#' value for the filter \code{object}.
+#' @description \code{condition} get the \code{condition} value for the filter
+#' \code{object}.
 #' 
 #' @rdname AnnotationFilter
 #' @export
 setMethod("condition", "AnnotationFilter", function(object) {
     .condition(object)
 })
-#' @aliases condition<-
-#'
-#' @param value The value for the object.
-#' 
-#' @importFrom methods validObject
-#' @rdname AnnotationFilter
-#' @export
-setReplaceMethod("condition", "AnnotationFilter", function(object, value) {
-    object@condition <- as.character(value)
-    if (validObject(object))
-        object
-})
 
 #' @aliases value
-#' @description \code{value,value<-} get or set the \code{value} for the filter
+#' @description \code{value} get or set the \code{value} for the filter
 #' \code{object}.
 #' 
 #' @rdname AnnotationFilter
@@ -192,13 +244,4 @@ setReplaceMethod("condition", "AnnotationFilter", function(object, value) {
 setMethod("value", "AnnotationFilter", function(object) {
     .value(object)
 })
-#' @aliases value<-
-#' @rdname AnnotationFilter
-#' @export
-setReplaceMethod("value", "AnnotationFilter", function(object, value) {
-    if (.isCharacter(object))
-        value <- as.character(value)
-    object@value <- value
-    if (validObject(object))
-        object
-})
+

@@ -20,21 +20,33 @@ test_that("SymbolFilter as representative for character filters", {
     ## Getter / setter
     fl <- SymbolFilter("BCL2")
     expect_equal(value(fl), "BCL2")
-    value(fl) <- "BCL2L11"
-    expect_equal(value(fl), "BCL2L11")
     fl <- SymbolFilter(c(4, 5))
     expect_equal(value(fl), c("4", "5"))
-    value(fl) <- 3
+    fl <- SymbolFilter(3)
     expect_equal(value(fl), "3")
-    expect_error(value(fl) <- NA)
+    expect_error(SymbolFilter(NA))
     ## condition.
     expect_equal(condition(fl), "==")
-    condition(fl) <- "!="
+    fl <- SymbolFilter("a", condition = "!=")
     expect_equal(condition(fl), "!=")
-    expect_error(condition(fl) <- "<")
-    expect_error(condition(fl) <- "")
-    expect_error(condition(fl) <- c("==", ">"))
-    expect_error(condition(fl) <- NULL)
-    expect_error(condition(fl) <- NA)
-    expect_error(condition(fl) <- 4)
+    expect_error(SymbolFilter("a", condition = "<"))
+    expect_error(SymbolFilter("a", condition = ""))
+    expect_error(SymbolFilter("a", condition = c("==", ">")))
+    expect_error(SymbolFilter("a", condition = NULL))
+    expect_error(SymbolFilter("a", condition = NA))
+    expect_error(SymbolFilter("a", condition = 4))
+})
+
+test_that("GeneStartFilter as representative for integer filters", {
+    gsf <- GeneStartFilter(10000, condition = ">")
+    expect_equal(condition(gsf), ">")
+    expect_error(GeneStartFilter("3"))
+    expect_error(GeneStartFilter("B"))
+    expect_error(GeneStartFilter(NA))
+    expect_error(GeneStartFilter(NULL))
+    expect_error(GeneStartFilter())
+    ## Condition
+    expect_error(GeneStartFilter(10000, condition = "startsWith"))
+    expect_error(GeneStartFilter(10000, condition = "endsWith"))
+    expect_error(GeneStartFilter(10000, condition = c("==", "<")))
 })
