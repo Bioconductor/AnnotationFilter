@@ -7,10 +7,11 @@
 .INT_FIELDS <- c("cds_start", "cds_end", "exon_start", "exon_rank", "exon_end",
                  "gene_start", "gene_end", "tx_start", "tx_end")
 
+#' @exportClass AnnotationFilter
 .AnnotationFilter <- setClass(
     "AnnotationFilter",
-    representation(
-        "VIRTUAL",
+    contains = "VIRTUAL",
+    slots = c(
         field="character",
         condition="character",
         value="ANY",
@@ -24,47 +25,43 @@
 )
 
 setValidity("AnnotationFilter", function(object) {
+    txt <- character()
+
     value <- .value(object)
     condition <- .condition(object)
     isCharacter <- .isCharacter(object)
-    txt <- character()
     condNa <- any(is.na(condition))
     condOne <- length(condition) == 1L
-    ## Check condition
+
     if (!condOne)
         txt <- c(txt, "'condition' must be length 1")
     if (condNa)
         txt <- c(txt, "'condition' can not be NA")
-    if (!condNa && condOne && !condition %in% .OPS)
-        txt <- c(txt,
-                 sprintf("'condition' must be one of %s",
-                         paste("'", .OPS, "'", collapse=", ")))
-    if (!condNa && condOne && condition  %in%
-        c("startsWith", "endsWith", ">", "<", ">=", "<=") && length(value) > 1L)
-        txt <- c(txt,
-                 paste0("'value' must be length 1 when condition is '",
-                        condition, "'"))
-    if (!condNa && condOne && condition  %in% c("startsWith", "endsWith") &&
-        !isCharacter)
-        txt <- c(txt,
-                 paste0("'", condition,
-                        "' can only work with character value"))
-    if (!condNa && condOne && condition  %in% c(">", "<", ">=", "<=") &&
-        isCharacter)
-        txt <- c(txt,
-                 paste0("'", condition,
-                        "' can only work with integer value"))
+    if (!condNa && condOne && !condition %in% .OPS) {
+        ops <- paste0("'", .OPS, "'", collapse=", ")
+        txt <- c(txt, paste("'condition' must be one of ", ops))
+    }
+
+    test0 <- condition  %in% c("startsWith", "endsWith", ">", "<", ">=", "<=")
+    if (!condNa && condOne && test0 && length(value) > 1L)
+        txt <- c(txt, paste0("'", condition, "' requires length 1 'value'"))
+
+    test0 <- condition  %in% c("startsWith", "endsWith")
+    if (!condNa && condOne && test0 && !isCharacter)
+        txt <- c(txt, paste0("'", condition, "' requires character() 'value'"))
+
+    test0 <- condition  %in% c(">", "<", ">=", "<=")
+    if (!condNa && condOne && test0 && isCharacter)
+        txt <- c(txt, paste0("'", condition, "' requires integer() 'value'"))
+
     ## Check value
     if (any(is.na(value)))
         txt <- c(txt, "'value' can not be NA")
     if (isCharacter && !is.character(value))
-        txt <- c(txt,
-                 paste0("'", class(object),
-                        "' can only take character value"))
+        txt <- c(txt, paste0("'", class(object), "' must be character(1)"))
     if (!isCharacter && !is.integer(value))
-        txt <- c(txt,
-                 paste0("'", class(object),
-                        "' can only take integer value"))
+        txt <- c(txt, paste0("'", class(object), "' must be integer(1)"))
+
     if (length(txt)) txt else TRUE
 })
 
@@ -89,10 +86,11 @@ setValidity("AnnotationFilter", function(object) {
     paste0(class, if (length(class)) "Filter" else character(0))
 }
 
-.filterFactory <- function(field, class, .valueIsCharacter) {
+.filterFactory <- function(field, class) {
     force(field); force(class)          # watch for lazy evaluation
+    valueIsCharacter <- field %in% .CHAR_FIELDS
     as.value <-
-        if (.valueIsCharacter) {
+        if (valueIsCharacter) {
             as.character
         } else {
             function(x) {
@@ -103,7 +101,7 @@ setValidity("AnnotationFilter", function(object) {
     function(value, condition = "==") {
         value <- as.value(value)
         new(class, field=field, condition = as.character(condition),
-            value=value, .valueIsCharacter=.valueIsCharacter)
+            value=value, .valueIsCharacter=valueIsCharacter)
     }
 }
 
@@ -115,26 +113,26 @@ local({
     for (i in seq_along(field)) {
         setClass(class[[i]], contains="AnnotationFilter", where=topenv())
         assign(class[[i]],
-               .filterFactory(
-                   field[[i]], class[[i]], field[[i]] %in% .CHAR_FIELDS
-               ),
+               .filterFactory(field[[i]], class[[i]]),
                envir=topenv())
     }
 })
 
 #' @aliases CdsStartFilter CdsEndFilter ExonIdFilter ExonNameFilter
-#' ExonStartFilter ExonEndFilter ExonRankFilter GeneIdFilter GenenameFilter
-#' GeneBiotypeFilter GeneStartFilter GeneEndFilter EntrezFilter SymbolFilter
-#' TxIdFilter TxNameFilter TxBiotypeFilter TxStartFilter TxEndFilter
-#' ProteinIdFilter UniprotFilter SeqNameFilter SeqStrandFilter
-#' AnnotationFilter-class CdsStartFilter-class CdsEndFilter-class
-#' ExonIdFilter-class ExonNameFilter-class ExonStartFilter-class
-#' ExonEndFilter-class ExonRankFilter-class GeneIdFilter-class
-#' GenenameFilter-class GeneBiotypeFilter-class GeneStartFilter-class
-#' GeneEndFilter-class EntrezFilter-class SymbolFilter-class TxIdFilter-class
-#' TxNameFilter-class TxBiotypeFilter-class TxStartFilter-class TxEndFilter-class
-#' ProteinIdFilter-class UniprotFilter-class SeqNameFilter-class
-#' SeqStrandFilter-class supportedFilters
+#'     ExonStartFilter ExonEndFilter ExonRankFilter GeneIdFilter
+#'     GenenameFilter GeneBiotypeFilter GeneStartFilter GeneEndFilter
+#'     EntrezFilter SymbolFilter TxIdFilter TxNameFilter
+#'     TxBiotypeFilter TxStartFilter TxEndFilter ProteinIdFilter
+#'     UniprotFilter SeqNameFilter SeqStrandFilter
+#'     AnnotationFilter-class CdsStartFilter-class CdsEndFilter-class
+#'     ExonIdFilter-class ExonNameFilter-class ExonStartFilter-class
+#'     ExonEndFilter-class ExonRankFilter-class GeneIdFilter-class
+#'     GenenameFilter-class GeneBiotypeFilter-class
+#'     GeneStartFilter-class GeneEndFilter-class EntrezFilter-class
+#'     SymbolFilter-class TxIdFilter-class TxNameFilter-class
+#'     TxBiotypeFilter-class TxStartFilter-class TxEndFilter-class
+#'     ProteinIdFilter-class UniprotFilter-class SeqNameFilter-class
+#'     SeqStrandFilter-class supportedFilters
 #' 
 #' @title Filters for annotation objects
 #'
@@ -183,16 +181,17 @@ local({
 #' SeqStrandFilter(value, condition = "==")
 #'
 #' @param value Value for the filter. For \code{GRangesFilter} a
-#' \code{\link[GenomicRanges]{GRanges}} object.
+#'     \code{\link[GenomicRanges]{GRanges}} object.
 #'
-#' @param condition character(1) defining the condition to be used in the filter.
-#' For numeric/integer filters one of \code{"=="}, \code{"!="}, \code{">"},
-#' \code{"<"}, \code{">="} and \code{"<="}. For character filter/values
-#' \code{"=="}, \code{"!="}, \code{"startsWith"} and \code{"endsWith"} are
-#' allowed. Default condition is "==". For \code{GRangesFilter} it can be
-#' \code{"within"} (for the feature to be completely within the range) or
-#' \code{"overlapping"}, for the feature to be (partially) overlapping with the
-#' range.
+#' @param condition character(1) defining the condition to be used in
+#'     the filter.  For numeric/integer filters one of \code{"=="},
+#'     \code{"!="}, \code{">"}, \code{"<"}, \code{">="} and
+#'     \code{"<="}. For character filter/values \code{"=="},
+#'     \code{"!="}, \code{"startsWith"} and \code{"endsWith"} are
+#'     allowed. Default condition is "==". For \code{GRangesFilter} it
+#'     can be \code{"within"} (for the feature to be completely within
+#'     the range) or \code{"overlapping"}, for the feature to be
+#'     (partially) overlapping with the range.
 #' 
 #' @rdname AnnotationFilter
 #'
@@ -214,22 +213,24 @@ local({
 #' @importFrom methods new
 #' 
 #' @export CdsStartFilter CdsEndFilter ExonIdFilter ExonNameFilter
-#' @export ExonStartFilter ExonEndFilter ExonRankFilter GeneIdFilter
-#' @export GenenameFilter GeneBiotypeFilter GeneStartFilter GeneEndFilter
-#' @export EntrezFilter SymbolFilter TxIdFilter TxNameFilter TxBiotypeFilter
-#' @export TxStartFilter TxEndFilter ProteinIdFilter UniprotFilter SeqNameFilter
-#' @export SeqStrandFilter
+#'     ExonStartFilter ExonEndFilter ExonRankFilter GeneIdFilter
+#'     GenenameFilter GeneBiotypeFilter GeneStartFilter GeneEndFilter
+#'     EntrezFilter SymbolFilter TxIdFilter TxNameFilter
+#'     TxBiotypeFilter TxStartFilter TxEndFilter ProteinIdFilter
+#'     UniprotFilter SeqNameFilter SeqStrandFilter
 #' 
-#' @exportClass AnnotationFilter CdsStartFilter CdsEndFilter ExonIdFilter
-#' ExonNameFilter ExonStartFilter ExonEndFilter ExonRankFilter GeneIdFilter
-#' GenenameFilter GeneBiotypeFilter GeneStartFilter GeneEndFilter EntrezFilter
-#' SymbolFilter TxIdFilter TxNameFilter TxBiotypeFilter TxStartFilter TxEndFilter
-#' ProteinIdFilter UniprotFilter SeqNameFilter SeqStrandFilter
+#' @exportClass CdsStartFilter CdsEndFilter ExonIdFilter
+#'     ExonNameFilter ExonStartFilter ExonEndFilter ExonRankFilter
+#'     GeneIdFilter GenenameFilter GeneBiotypeFilter GeneStartFilter
+#'     GeneEndFilter EntrezFilter SymbolFilter TxIdFilter TxNameFilter
+#'     TxBiotypeFilter TxStartFilter TxEndFilter ProteinIdFilter
+#'     UniprotFilter SeqNameFilter SeqStrandFilter
 #'
 #' @export
 setMethod("supportedFilters", "missing", function(object) {
     .supportedFilters()
 })
+
 .supportedFilters <- function() {
     sort(c(.fieldToClass(c(.CHAR_FIELDS, .INT_FIELDS)), "GRangesFilter"))
 }
@@ -238,18 +239,22 @@ setMethod("supportedFilters", "missing", function(object) {
 #'
 #' @importFrom GenomicRanges GRanges
 #'
-#' @export
-setClass("GRangesFilter",
-         slots = list(field = "character",
-                      value = "GRanges",
-                      condition = "character",
-                      feature = "character"),
-         prototype = list(
-             condition = "overlapping",
-             value = GRanges(),
-             field = "granges",
-             feature = "gene"
-         ))
+#' @exportClass GRangesFilter
+.GRangesFilter <- setClass(
+    "GRangesFilter",
+    slots = list(
+        field = "character",
+        value = "GRanges",
+        condition = "character",
+        feature = "character"
+    ),
+    prototype = list(
+        condition = "overlapping",
+        value = GRanges(),
+        field = "granges",
+        feature = "gene"
+    )
+)
 
 #' @rdname AnnotationFilter
 #'
@@ -259,7 +264,7 @@ setClass("GRangesFilter",
 #'
 #' @export
 GRangesFilter <- function(value, condition = "overlapping", feature = "gene"){
-    new("GRangesFilter",
+    .GRangesFilter(
         field = "granges",
         value = value,
         condition = condition,
@@ -267,11 +272,8 @@ GRangesFilter <- function(value, condition = "overlapping", feature = "gene"){
 }
 
 setValidity("GRangesFilter", function(object) {
-    value <- .value(object)
     condition <- .condition(object)
     txt <- character()
-    if (!is(value, "GRanges"))
-        txt <- c(txt, "'value' must be 'GRanges' object")
     if (!(condition %in% c("within", "overlapping")))
         txt <- c(txt, "'condition' must be \"within\" or \"overlapping\"")
     if (length(txt)) txt else TRUE
@@ -279,8 +281,24 @@ setValidity("GRangesFilter", function(object) {
 
 
 ############################################################
-## Methods for the filter classes
+## Methods for the AnnotationFilter classes
 ## 
+
+#' @aliases condition
+#' @description \code{condition} get the \code{condition} value for the filter
+#' \code{object}.
+#' 
+#' @rdname AnnotationFilter
+#' @export
+setMethod("condition", "AnnotationFilter", .condition)
+
+#' @aliases value
+#' @description \code{value} get or set the \code{value} for the filter
+#' \code{object}.
+#' 
+#' @rdname AnnotationFilter
+#' @export
+setMethod("value", "AnnotationFilter", .value)
 
 #' @param object An \code{AnnotationFilter} or \code{GRangesFilter} object
 #'
@@ -293,45 +311,25 @@ setMethod("show", "AnnotationFilter", function(object){
         "\nvalue:", .value(object), "\n")
 })
 
-#' @aliases condition
-#' @description \code{condition} get the \code{condition} value for the filter
-#' \code{object}.
-#' 
-#' @rdname AnnotationFilter
-#' @export
-setMethod("condition", "AnnotationFilter", function(object) {
-    .condition(object)
-})
+############################################################
+## Methods for the GRangesFilter classes
+## 
 
-#' @aliases value
-#' @description \code{value} get or set the \code{value} for the filter
-#' \code{object}.
-#' 
 #' @rdname AnnotationFilter
 #' @export
-setMethod("value", "AnnotationFilter", function(object) {
-    .value(object)
-})
+setMethod("condition", "GRangesFilter", .condition)
+
+#' @rdname AnnotationFilter
+#' @export
+setMethod("value", "GRangesFilter", .value)
 
 #' @rdname AnnotationFilter
 #' @importFrom GenomicRanges show
 #' @export
 setMethod("show", "GRangesFilter", function(object){
     cat("class:", class(object),
-        "\ncondition:", .condition(object),
+        "\ncondition:", condition(object),
         "\nfeature:", .feature(object),
         "\nvalue:\n")
-    show(object@value)
-})
-
-#' @rdname AnnotationFilter
-#' @export
-setMethod("condition", "GRangesFilter", function(object) {
-    .condition(object)
-})
-
-#' @rdname AnnotationFilter
-#' @export
-setMethod("value", "GRangesFilter", function(object) {
-    .value(object)
+    show(value(object))
 })
