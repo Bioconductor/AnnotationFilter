@@ -133,7 +133,7 @@ local({
 #'     TxBiotypeFilter-class TxStartFilter-class TxEndFilter-class
 #'     ProteinIdFilter-class UniprotFilter-class SeqNameFilter-class
 #'     SeqStrandFilter-class supportedFilters
-#' 
+#'
 #' @title Filters for annotation objects
 #'
 #' @description The filters extending the base \code{AnnotationFilter} class
@@ -192,7 +192,7 @@ local({
 #'     can be \code{"within"} (for the feature to be completely within
 #'     the range) or \code{"overlapping"}, for the feature to be
 #'     (partially) overlapping with the range.
-#' 
+#'
 #' @rdname AnnotationFilter
 #'
 #' @examples
@@ -211,14 +211,14 @@ local({
 #' GRangesFilter(as("chr10:87869000-87876000", "GRanges"))
 #'
 #' @importFrom methods new
-#' 
+#'
 #' @export CdsStartFilter CdsEndFilter ExonIdFilter ExonNameFilter
 #'     ExonStartFilter ExonEndFilter ExonRankFilter GeneIdFilter
 #'     GenenameFilter GeneBiotypeFilter GeneStartFilter GeneEndFilter
 #'     EntrezFilter SymbolFilter TxIdFilter TxNameFilter
 #'     TxBiotypeFilter TxStartFilter TxEndFilter ProteinIdFilter
 #'     UniprotFilter SeqNameFilter SeqStrandFilter
-#' 
+#'
 #' @exportClass CdsStartFilter CdsEndFilter ExonIdFilter
 #'     ExonNameFilter ExonStartFilter ExonEndFilter ExonRankFilter
 #'     GeneIdFilter GenenameFilter GeneBiotypeFilter GeneStartFilter
@@ -282,12 +282,12 @@ setValidity("GRangesFilter", function(object) {
 
 ############################################################
 ## Methods for the AnnotationFilter classes
-## 
+##
 
 #' @aliases condition
 #' @description \code{condition} get the \code{condition} value for the filter
 #' \code{object}.
-#' 
+#'
 #' @rdname AnnotationFilter
 #' @export
 setMethod("condition", "AnnotationFilter", .condition)
@@ -295,7 +295,7 @@ setMethod("condition", "AnnotationFilter", .condition)
 #' @aliases value
 #' @description \code{value} get or set the \code{value} for the filter
 #' \code{object}.
-#' 
+#'
 #' @rdname AnnotationFilter
 #' @export
 setMethod("value", "AnnotationFilter", .value)
@@ -313,7 +313,7 @@ setMethod("show", "AnnotationFilter", function(object){
 
 ############################################################
 ## Methods for the GRangesFilter classes
-## 
+##
 
 #' @rdname AnnotationFilter
 #' @export
