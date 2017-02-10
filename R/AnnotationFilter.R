@@ -78,6 +78,9 @@ setValidity("AnnotationFilter", function(object) {
 
 .isCharacter <- function(x) x@.valueIsCharacter
 
+.feature <- function(x) x@feature
+
+
 ## helper functions
 
 .fieldToClass <- function(field) {
@@ -86,8 +89,6 @@ setValidity("AnnotationFilter", function(object) {
     paste0(class, if (length(class)) "Filter" else character(0))
 }
 
-
-#' @importFrom methods new
 .filterFactory <- function(field, class, .valueIsCharacter) {
     force(field); force(class)          # watch for lazy evaluation
     as.value <-
@@ -134,17 +135,24 @@ local({
 #' TxNameFilter-class TxBiotypeFilter-class TxStartFilter-class TxEndFilter-class
 #' ProteinIdFilter-class UniprotFilter-class SeqNameFilter-class
 #' SeqStrandFilter-class
-#'
 #' 
 #' @title Filters for annotation objects
 #'
-#' @description These functions are used to create filters for annotation
-#' resources.
+#' @description The filters extending the base \code{AnnotationFilter} class
+#' represent a simple filtering concept for annotation resources.
+#' Each filter object is thought to filter on a single (database) table column
+#' based on the provided values and the defined condition.
 #'
-#' \code{supportedFilters()} lists all defined filters; by default filters are
-#' only available for tables containing the field on which the filter
-#' acts. See the vignette for a description to use filters for databases in which
-#' the database table column name differs from the default `field` of the filter.
+#' Filter instances should be created using the constructor functions (e.g.
+#' \code{GeneIdFilter}) and not by calls to \code{new}.
+#'
+#' \code{supportedFilters()} lists all defined filters.
+#'
+#' @details By default filters are only available for tables containing the
+#' field on which the filter acts (i.e. that contain a column with the name
+#' matching the value of the \code{field} slot of the object). See the vignette
+#' for a description to use filters for databases in which the database table
+#' column name differs from the default \code{field} of the filter.
 #'
 #' @usage CdsStartFilter(value, condition = "==")
 #' CdsEndFilter(value, condition = "==")
@@ -170,13 +178,17 @@ local({
 #' SeqNameFilter(value, condition = "==")
 #' SeqStrandFilter(value, condition = "==")
 #'
-#' @param value Value for the filter.
+#' @param value Value for the filter. For \code{GRangesFilter} a
+#' \code{\link[GenomicRanges]{GRanges}} object.
 #'
 #' @param condition character(1) defining the condition to be used in the filter.
 #' For numeric/integer filters one of \code{"=="}, \code{"!="}, \code{">"},
 #' \code{"<"}, \code{">="} and \code{"<="}. For character filter/values
 #' \code{"=="}, \code{"!="}, \code{"startsWith"} and \code{"endsWith"} are
-#' allowed. Default condition is "==".
+#' allowed. Default condition is "==". For \code{GRangesFilter} it can be
+#' \code{"within"} (for the feature to be completely within the range) or
+#' \code{"overlapping"}, for the feature to be (partially) overlapping with the
+#' range.
 #' 
 #' @rdname AnnotationFilter
 #'
@@ -191,6 +203,11 @@ local({
 #' ## coordinates
 #' gsf <- GeneStartFilter(10000, condition = ">")
 #' gsf
+#'
+#' ## filter by GRanges
+#' GRangesFilter(as("chr10:87869000-87876000", "GRanges"))
+#'
+#' @importFrom methods new
 #' 
 #' @export CdsStartFilter CdsEndFilter ExonIdFilter ExonNameFilter
 #' @export ExonStartFilter ExonEndFilter ExonRankFilter GeneIdFilter
@@ -210,7 +227,55 @@ supportedFilters <- function() {
     .fieldToClass(c(.CHAR_FIELDS, .INT_FIELDS))
 }
 
-#' @param object An \code{AnnotationFilter} object
+#' @rdname AnnotationFilter
+#'
+#' @importFrom GenomicRanges GRanges
+#'
+#' @export
+setClass("GRangesFilter",
+         slots = list(field = "character",
+                      value = "GRanges",
+                      condition = "character",
+                      feature = "character"),
+         prototype = list(
+             condition = "overlapping",
+             value = GRanges(),
+             field = "granges",
+             feature = "gene"
+         ))
+
+#' @rdname AnnotationFilter
+#'
+#' @param feature \code{character(1)} defining on what feature the
+#' \code{GRangesFilter} should be applied. Choices could be \code{"gene"},
+#' \code{"tx"} or \code{"exon"}.
+#'
+#' @export
+GRangesFilter <- function(value, condition = "overlapping", feature = "gene"){
+    new("GRangesFilter",
+        field = "granges",
+        value = value,
+        condition = condition,
+        feature = feature)
+}
+
+setValidity("GRangesFilter", function(object) {
+    value <- .value(object)
+    condition <- .condition(object)
+    txt <- character()
+    if (!is(value, "GRanges"))
+        txt <- c(txt, "'value' must be 'GRanges' object")
+    if (!(condition %in% c("within", "overlapping")))
+        txt <- c(txt, "'condition' must be \"within\" or \"overlapping\"")
+    if (length(txt)) txt else TRUE
+})
+
+
+############################################################
+## Methods for the filter classes
+## 
+
+#' @param object An \code{AnnotationFilter} or \code{GRangesFilter} object
 #'
 #' @importFrom methods show
 #' @rdname AnnotationFilter
@@ -218,12 +283,8 @@ supportedFilters <- function() {
 setMethod("show", "AnnotationFilter", function(object){
     cat("class:", class(object),
         "\ncondition:", .condition(object),
-        "\nvalue:", .value(object), "\n")
+        "\nvalue:\n", .value(object))
 })
-
-############################################################
-## Methods for the filter classes
-## 
 
 #' @aliases condition
 #' @description \code{condition} get the \code{condition} value for the filter
@@ -245,3 +306,25 @@ setMethod("value", "AnnotationFilter", function(object) {
     .value(object)
 })
 
+#' @rdname AnnotationFilter
+#' @importFrom GenomicRanges show
+#' @export
+setMethod("show", "GRangesFilter", function(object){
+    cat("class:", class(object),
+        "\ncondition:", .condition(object),
+        "\nfeature:", .feature(object),
+        "\nvalue:\n")
+    show(object@value)
+})
+
+#' @rdname AnnotationFilter
+#' @export
+setMethod("condition", "GRangesFilter", function(object) {
+    .condition(object)
+})
+
+#' @rdname AnnotationFilter
+#' @export
+setMethod("value", "GRangesFilter", function(object) {
+    .value(object)
+})

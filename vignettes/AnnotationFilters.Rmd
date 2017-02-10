@@ -1,13 +1,13 @@
 ---
 title: "Facilities for Filtering Bioconductor Annotation Resources"
 output:
-  BiocStyle::html_document:
-    toc: true
+    BiocStyle::html_document2:
+        toc_float: true
 vignette: >
-  %\VignetteIndexEntry{Facilities for Filtering Bioconductor Annotation resources}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
-  %\VignettePackage{AnnotationFilters}
+    %\VignetteIndexEntry{Facilities for Filtering Bioconductor Annotation resources}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}
+    %\VignettePackage{AnnotationFilters}
 ---
 
 ```{r style, echo = FALSE, results = 'asis', message=FALSE}

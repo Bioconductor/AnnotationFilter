@@ -50,3 +50,15 @@ test_that("GeneStartFilter as representative for integer filters", {
     expect_error(GeneStartFilter(10000, condition = "endsWith"))
     expect_error(GeneStartFilter(10000, condition = c("==", "<")))
 })
+
+test_that("GRangesFilter", {
+    grf <- GRangesFilter(as("chr10:87869000-87876000", "GRanges"))
+    expect_equal(condition(grf), "overlapping")
+    expect_error(GRangesFilter(value = 3))
+    expect_error(GRangesFilter(as("chr10:87869000-87876000", "GRanges"),
+                               condition = "=="))
+    grf <- GRangesFilter(as("chr10:87869000-87876000", "GRanges"),
+                         condition = "within", feature = "tx")
+    expect_equal(condition(grf), "within")
+    expect_equal(grf@feature, "tx")
+})
