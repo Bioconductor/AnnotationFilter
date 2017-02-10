@@ -7,7 +7,7 @@ test_that("supportedFilters() works", {
         length(c(
             AnnotationFilters:::.CHAR_FIELDS,
             AnnotationFilters:::.INT_FIELDS
-        ))
+        )) + 1L
     )
 })
 
@@ -51,7 +51,7 @@ test_that("GeneStartFilter as representative for integer filters", {
     expect_error(GeneStartFilter(10000, condition = c("==", "<")))
 })
 
-test_that("GRangesFilter", {
+test_that("GRangesFilter works", {
     grf <- GRangesFilter(as("chr10:87869000-87876000", "GRanges"))
     expect_equal(condition(grf), "overlapping")
     expect_error(GRangesFilter(value = 3))

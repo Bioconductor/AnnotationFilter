@@ -134,7 +134,7 @@ local({
 #' GeneEndFilter-class EntrezFilter-class SymbolFilter-class TxIdFilter-class
 #' TxNameFilter-class TxBiotypeFilter-class TxStartFilter-class TxEndFilter-class
 #' ProteinIdFilter-class UniprotFilter-class SeqNameFilter-class
-#' SeqStrandFilter-class
+#' SeqStrandFilter-class supportedFilters
 #' 
 #' @title Filters for annotation objects
 #'
@@ -146,7 +146,11 @@ local({
 #' Filter instances should be created using the constructor functions (e.g.
 #' \code{GeneIdFilter}) and not by calls to \code{new}.
 #'
-#' \code{supportedFilters()} lists all defined filters.
+#' \code{supportedFilters()} lists all defined filters. Packages using
+#' \code{AnnotationFilters} should implement the \code{supportedFilters} for
+#' their annotation resource object (e.g. for \code{object = "EnsDb"} in the
+#' \code{ensembldb} package) to list all supported filters for the specific
+#' resource.
 #'
 #' @details By default filters are only available for tables containing the
 #' field on which the filter acts (i.e. that contain a column with the name
@@ -223,8 +227,11 @@ local({
 #' ProteinIdFilter UniprotFilter SeqNameFilter SeqStrandFilter
 #'
 #' @export
-supportedFilters <- function() {
-    .fieldToClass(c(.CHAR_FIELDS, .INT_FIELDS))
+setMethod("supportedFilters", "missing", function(object) {
+    .supportedFilters()
+})
+.supportedFilters <- function() {
+    sort(c(.fieldToClass(c(.CHAR_FIELDS, .INT_FIELDS)), "GRangesFilter"))
 }
 
 #' @rdname AnnotationFilter
