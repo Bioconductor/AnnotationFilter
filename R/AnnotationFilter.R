@@ -290,7 +290,7 @@ setValidity("GRangesFilter", function(object) {
 setMethod("show", "AnnotationFilter", function(object){
     cat("class:", class(object),
         "\ncondition:", .condition(object),
-        "\nvalue:\n", .value(object))
+        "\nvalue:", .value(object), "\n")
 })
 
 #' @aliases condition

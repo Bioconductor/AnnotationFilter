@@ -1,6 +1,6 @@
 Package: AnnotationFilters
 Title: Facilities for Filtering Bioconductor Annotation Resources
-Version: 0.0.8
+Version: 0.0.9
 Authors@R: c(
     person("Martin", "Morgan", email = "martin.morgan@roswellpark.org",
         role = "aut"),
