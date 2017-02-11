@@ -26,11 +26,10 @@
 #' The filters extending the base \code{AnnotationFilter} class
 #' represent a simple filtering concept for annotation resources.
 #' Each filter object is thought to filter on a single (database)
-#' table column based on the provided values and the defined
-#' condition.
+#' table column using the provided values and the defined condition.
 #'
-#' Filter instances should be created using the constructor functions (e.g.
-#' \code{GeneIdFilter}) and not by calls to \code{new}.
+#' Filter instances created using the constructor functions (e.g.
+#' \code{GeneIdFilter}).
 #'
 #' \code{supportedFilters()} lists all defined filters. Packages using
 #' \code{AnnotationFilters} should implement the \code{supportedFilters} for
@@ -73,28 +72,48 @@
 #' SeqNameFilter(value, condition = "==")
 #' SeqStrandFilter(value, condition = "==")
 #'
-#' @param value Value for the filter. For \code{GRangesFilter} a
-#'     \code{\link[GenomicRanges]{GRanges}} object.
+#' @param value \code{character()}, \code{integer()}, or
+#'     \code{GRanges()} value for the filter
 #'
-#' @param condition character(1) defining the condition to be used in
-#'     the filter.  For numeric/integer filters one of \code{"=="},
-#'     \code{"!="}, \code{">"}, \code{"<"}, \code{">="} and
-#'     \code{"<="}. For character filter/values \code{"=="},
-#'     \code{"!="}, \code{"startsWith"} and \code{"endsWith"} are
-#'     allowed. Default condition is "==". For \code{GRangesFilter} it
-#'     can be \code{"within"} (for the feature to be completely within
-#'     the range) or \code{"overlapping"}, for the feature to be
-#'     (partially) overlapping with the range.
+#' @param condition \code{character(1)} defining the condition to be
+#'     used in the filter. For \code{IntegerFilter}, one of
+#'     \code{"=="}, \code{"!="}, \code{">"}, \code{"<"}, \code{">="}
+#'     or \code{"<="}. For \code{CharacterFilter}, one of \code{"=="},
+#'     \code{"!="}, \code{"startsWith"} or \code{"endsWith"}. Default
+#'     condition is \code{"=="}.
 NULL
 
-.OPS <- c("==", "!=", "startsWith", "endsWith", ">", "<", ">=", "<=")
+.CONDITION <- list(
+    IntegerFilter = c("==", "!=", ">", "<", ">=", "<="),
+    CharacterFilter =  c("==", "!=", "startsWith", "endsWith"),
+    GRangesFilter = c("any", "start", "end", "within", "equal")
+)
 
-.CHAR_FIELDS <- c("exon_id", "exon_name", "gene_id", "genename", "gene_biotype",
-                  "entrez", "symbol", "tx_id", "tx_name", "tx_biotype",
-                  "protein_id", "uniprot", "seq_name", "seq_strand")
+.FIELD <- list(
+    CharacterFilter = c(
+        "exon_id", "exon_name", "gene_id", "genename", "gene_biotype",
+        "entrez", "symbol", "tx_id", "tx_name", "tx_biotype",
+        "protein_id", "uniprot", "seq_name", "seq_strand"),
+    IntegerFilter = c(
+        "cds_start", "cds_end", "exon_start", "exon_rank", "exon_end",
+        "gene_start", "gene_end", "tx_start", "tx_end")
+)
 
-.INT_FIELDS <- c("cds_start", "cds_end", "exon_start", "exon_rank", "exon_end",
-                 "gene_start", "gene_end", "tx_start", "tx_end")
+.valid_condition <- function(condition, class) {
+    txt <- character()
+
+    test0 <- length(condition) == 1L
+    if (!test0)
+        txt <- c(txt, "'condition' must be length 1")
+
+    test1 <- test0 && (condition %in% .CONDITION[[class]])
+    if (!test1) {
+        value <- paste(sQuote(.CONDITION[[class]]), collapse=" ")
+        txt <- c(txt, paste0("'", condition, "' must be in ", value))
+    }
+
+    if (length(txt)) txt else TRUE
+}
 
 ############################################################
 ## AnnotationFilter
@@ -119,17 +138,15 @@ setValidity("AnnotationFilter", function(object) {
 
     value <- .value(object)
     condition <- .condition(object)
-    isCharacter <- is(value, "character")
-    condNa <- any(is.na(condition))
-    condOne <- length(condition) == 1L
+    test_len <- length(condition) == 1L
+    test_NA <- !any(is.na(condition))
 
-    if (!condOne)
-        txt <- c(txt, "'condition' must be length 1")
-    if (condNa)
+    if (test_len && !test_NA)
         txt <- c(txt, "'condition' can not be NA")
+    test0 <- test_len && test_NA
 
-    test0 <- condition  %in% c("startsWith", "endsWith", ">", "<", ">=", "<=")
-    if (!condNa && condOne && test0 && length(value) > 1L)
+    test1 <- condition  %in% c("startsWith", "endsWith", ">", "<", ">=", "<=")
+    if (test0 && test1 && length(value) > 1L)
         txt <- c(txt, paste0("'", condition, "' requires length 1 'value'"))
 
     if (any(is.na(value)))
@@ -138,28 +155,26 @@ setValidity("AnnotationFilter", function(object) {
     if (length(txt)) txt else TRUE
 })
 
-## slot accessors
-
 .field <- function(object) object@field
 
 .condition <- function(object) object@condition
 
 .value <- function(object) object@value
 
+#' @rdname AnnotationFilter
 #' @aliases condition
 #' @description \code{condition()} get the \code{condition} value for
 #'     the filter \code{object}.
 #'
 #' @param object An \code{AnnotationFilter} object.
-#' @rdname AnnotationFilter
 #' @export
 setMethod("condition", "AnnotationFilter", .condition)
 
+#' @rdname AnnotationFilter
 #' @aliases value
 #' @description \code{value()} get the \code{value} for the filter
 #'     \code{object}.
 #'
-#' @rdname AnnotationFilter
 #' @export
 setMethod("value", "AnnotationFilter", .value)
 
@@ -185,14 +200,7 @@ setMethod("show", "AnnotationFilter", function(object){
 )
 
 setValidity("CharacterFilter", function(object) {
-    txt <- character()
-
-    condition <- .condition(object)
-    test0 <-length(condition) == 1L && !is.na(condition)
-
-    test <- test0 && condition %in% c("==", "!=", "startsWith", "endsWith")
-    if (!test)
-        txt <- c(txt, paste("'", condition, "' not allowed"))
+    .valid_condition(.condition(object), "CharacterFilter")
 })
 
 #' @importFrom methods show callNextMethod
@@ -213,14 +221,7 @@ setMethod("show", "CharacterFilter", function(object) {
 )
 
 setValidity("IntegerFilter", function(object) {
-    txt <- character()
-
-    condition <- .condition(object)
-    test0 <-length(condition) == 1L && !is.na(condition)
-
-    test <-  test0 && condition %in% setdiff(.OPS, c("startsWith", "endsWith"))
-    if (!test)
-        txt <- c(txt, paste("'", condition, "' not allowed"))
+    .valid_condition(.condition(object), "IntegerFilter")
 })
 
 #' @export
@@ -242,20 +243,32 @@ setMethod("show", "IntegerFilter", function(object) {
     ),
     prototype = list(
         value  = GRanges(),
-        condition = "overlapping",
+        condition = "any",
         field = "granges",
         feature = "gene"
     )
 )
 
+setValidity("GRangesFilter", function(object) {
+    .valid_condition(.condition(object), "GRangesFilter")
+})
+
+.feature <- function(object) object@feature
+
 #' @rdname AnnotationFilter
+#'
+#' @param type \code{character(1)} indicating how overlaps are to be
+#'     filtered. See \code{findOverlaps} in the IRanges package for a
+#'     description of this argument.
+#' 
 #' @examples
 #' ## filter by GRanges
 #' GRangesFilter(GenomicRanges::GRanges("chr10:87869000-87876000"))
 #' @export
 GRangesFilter <-
-    function(value, condition = "overlapping", feature = "gene")
+    function(value, feature = "gene", type = c("any", "start", "end", "within"))
 {
+    condition <- match.arg(type)
     .GRangesFilter(
         field = "granges",
         value = value,
@@ -265,13 +278,13 @@ GRangesFilter <-
 
 .feature <- function(object) object@feature
 
-setValidity("GRangesFilter", function(object) {
-    condition <- .condition(object)
-    txt <- character()
-    if (!(condition %in% c("within", "overlapping")))
-        txt <- c(txt, "'condition' must be \"within\" or \"overlapping\"")
-    if (length(txt)) txt else TRUE
-})
+#' @aliases feature
+#' @description \code{feature()} get the \code{feature} for the
+#'     \code{GRangesFilter} \code{object}.
+#'
+#' @rdname AnnotationFilter
+#' @export
+feature <- .feature
 
 #' @importFrom GenomicRanges show
 #' @export
@@ -295,6 +308,7 @@ setMethod("show", "GRangesFilter", function(object) {
 #'     \code{"gene"}, \code{"tx"} or \code{"exon"}.
 #'
 #' @examples
+#' 
 #' ## Create a SymbolFilter to filter on a gene's symbol.
 #' sf <- SymbolFilter("BCL2")
 #' sf
@@ -330,7 +344,7 @@ NULL
 .filterFactory <- function(field, class) {
     force(field); force(class)          # watch for lazy evaluation
     as.value <-
-        if (field %in% .CHAR_FIELDS) {
+        if (field %in% .FIELD[["CharacterFilter"]]) {
             as.character
         } else {
             function(x) {
@@ -338,6 +352,7 @@ NULL
                 as.integer(x)
             }
         }
+
     function(value, condition = "==") {
         value <- as.value(value)
         condition <- as.character(condition)
@@ -346,19 +361,20 @@ NULL
 }
 
 local({
-    makeClass <- function(field, contains) {
-        class <- .fieldToClass(field)
-        for (i in seq_along(field)) {
-            setClass(class[[i]], contains=contains, where=topenv())
+    makeClass <- function(contains) {
+        fields <- .FIELD[[contains]]
+        classes <- .fieldToClass(fields)
+        for (i in seq_along(fields)) {
+            setClass(classes[[i]], contains=contains, where=topenv())
             assign(
-                class[[i]],
-                .filterFactory(field[[i]], class[[i]]),
+                classes[[i]],
+                .filterFactory(fields[[i]], classes[[i]]),
                 envir=topenv()
             )
         }
     }
-    makeClass(.CHAR_FIELDS, "CharacterFilter")
-    makeClass(.INT_FIELDS, "IntegerFilter")
+    for (contains in names(.FIELD))
+        makeClass(contains)
 })
 
 ############################################################
@@ -366,7 +382,7 @@ local({
 ##
 
 .supportedFilters <- function() {
-    sort(c(.fieldToClass(c(.CHAR_FIELDS, .INT_FIELDS)), "GRangesFilter"))
+    sort(c(.fieldToClass(unlist(.FIELD, use.names=FALSE)), "GRangesFilter"))
 }
 
 #' @rdname AnnotationFilter

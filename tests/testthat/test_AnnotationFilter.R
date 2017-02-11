@@ -4,10 +4,7 @@ test_that("supportedFilters() works", {
     expect_true(inherits(supportedFilters(), "character"))
     expect_identical(
         length(supportedFilters()),
-        length(c(
-            AnnotationFilters:::.CHAR_FIELDS,
-            AnnotationFilters:::.INT_FIELDS
-        )) + 1L
+        length(unlist(AnnotationFilters:::.FIELD, use.names=FALSE)) + 1L
     )
 })
 
@@ -52,13 +49,19 @@ test_that("GeneStartFilter as representative for integer filters", {
 })
 
 test_that("GRangesFilter works", {
-    grf <- GRangesFilter(as("chr10:87869000-87876000", "GRanges"))
-    expect_equal(condition(grf), "overlapping")
+    GRanges <- GenomicRanges::GRanges
+    grf <- GRangesFilter(GRanges("chr10:87869000-87876000"))
+    expect_equal(condition(grf), "any")
     expect_error(GRangesFilter(value = 3))
-    expect_error(GRangesFilter(as("chr10:87869000-87876000", "GRanges"),
-                               condition = "=="))
-    grf <- GRangesFilter(as("chr10:87869000-87876000", "GRanges"),
-                         condition = "within", feature = "tx")
+    expect_error(GRangesFilter(
+        GRanges("chr10:87869000-87876000"),
+        type = "=="
+    ))
+    grf <- GRangesFilter(
+        GRanges("chr10:87869000-87876000"),
+        type = "within",
+        feature = "tx"
+    )
     expect_equal(condition(grf), "within")
-    expect_equal(grf@feature, "tx")
+    expect_equal(feature(grf), "tx")
 })

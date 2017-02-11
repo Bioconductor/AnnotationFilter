@@ -64,6 +64,7 @@
 \alias{GRangesFilter-class}
 \alias{.GRangesFilter}
 \alias{GRangesFilter}
+\alias{feature}
 \alias{AnnotationFilter}
 \alias{supportedFilters,missing-method}
 \title{Filters for annotation objects}
@@ -96,39 +97,42 @@ SeqStrandFilter(value, condition = "==")
 
 \S4method{value}{AnnotationFilter}(object)
 
-GRangesFilter(value, condition = "overlapping", feature = "gene")
+GRangesFilter(value, feature = "gene", type = c("any", "start", "end",
+  "within"))
+
+feature(object)
 
 \S4method{supportedFilters}{missing}(object)
 }
 \arguments{
 \item{object}{An \code{AnnotationFilter} object.}
 
-\item{value}{Value for the filter. For \code{GRangesFilter} a
-\code{\link[GenomicRanges]{GRanges}} object.}
-
-\item{condition}{character(1) defining the condition to be used in
-the filter.  For numeric/integer filters one of \code{"=="},
-\code{"!="}, \code{">"}, \code{"<"}, \code{">="} and
-\code{"<="}. For character filter/values \code{"=="},
-\code{"!="}, \code{"startsWith"} and \code{"endsWith"} are
-allowed. Default condition is "==". For \code{GRangesFilter} it
-can be \code{"within"} (for the feature to be completely within
-the range) or \code{"overlapping"}, for the feature to be
-(partially) overlapping with the range.}
+\item{value}{\code{character()}, \code{integer()}, or
+\code{GRanges()} value for the filter}
 
 \item{feature}{\code{character(1)} defining on what feature the
 \code{GRangesFilter} should be applied. Choices could be
 \code{"gene"}, \code{"tx"} or \code{"exon"}.}
+
+\item{type}{\code{character(1)} indicating how overlaps are to be
+filtered. See \code{findOverlaps} in the IRanges package for a
+description of this argument.}
+
+\item{condition}{\code{character(1)} defining the condition to be
+used in the filter. For \code{IntegerFilter}, one of
+\code{"=="}, \code{"!="}, \code{">"}, \code{"<"}, \code{">="}
+or \code{"<="}. For \code{CharacterFilter}, one of \code{"=="},
+\code{"!="}, \code{"startsWith"} or \code{"endsWith"}. Default
+condition is \code{"=="}.}
 }
 \description{
 The filters extending the base \code{AnnotationFilter} class
 represent a simple filtering concept for annotation resources.
 Each filter object is thought to filter on a single (database)
-table column based on the provided values and the defined
-condition.
+table column using the provided values and the defined condition.
 
-Filter instances should be created using the constructor functions (e.g.
-\code{GeneIdFilter}) and not by calls to \code{new}.
+Filter instances created using the constructor functions (e.g.
+\code{GeneIdFilter}).
 
 \code{supportedFilters()} lists all defined filters. Packages using
 \code{AnnotationFilters} should implement the \code{supportedFilters} for
@@ -141,6 +145,9 @@ resource.
 
 \code{value()} get the \code{value} for the filter
     \code{object}.
+
+\code{feature()} get the \code{feature} for the
+    \code{GRangesFilter} \code{object}.
 }
 \details{
 By default filters are only available for tables containing the
@@ -153,6 +160,7 @@ default \code{field} of the filter.
 \examples{
 ## filter by GRanges
 GRangesFilter(GenomicRanges::GRanges("chr10:87869000-87876000"))
+
 ## Create a SymbolFilter to filter on a gene's symbol.
 sf <- SymbolFilter("BCL2")
 sf
