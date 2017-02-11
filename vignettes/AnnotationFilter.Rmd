@@ -7,27 +7,27 @@ vignette: >
     %\VignetteIndexEntry{Facilities for Filtering Bioconductor Annotation resources}
     %\VignetteEngine{knitr::rmarkdown}
     %\VignetteEncoding{UTF-8}
-    %\VignettePackage{AnnotationFilters}
+    %\VignettePackage{AnnotationFilter}
 ---
 
 ```{r style, echo = FALSE, results = 'asis', message=FALSE}
 BiocStyle::markdown()
 ```
 
-**Package**: `r Biocpkg("AnnotationFilters")`<br />
-**Authors**: `r packageDescription("AnnotationFilters")[["Author"]] `<br />
-**Last modified:** `r file.info("AnnotationFilters.Rmd")$mtime`<br />
+**Package**: `r Biocpkg("AnnotationFilter")`<br />
+**Authors**: `r packageDescription("AnnotationFilter")[["Author"]] `<br />
+**Last modified:** `r file.info("AnnotationFilter.Rmd")$mtime`<br />
 **Compiled**: `r date()`
 
 
 # Introduction
 
-The `r Biocpkg("AnnotationFilters")` package provides filter classes and basic
+The `r Biocpkg("AnnotationFilter")` package provides filter classes and basic
 concepts for filtering of Bioconductor annotation resources.
 
 ## Filter classes
 
-The filter classes provided by `AnnotationFilters` extend the `AnnotationFilter`
+The filter classes provided by `AnnotationFilter` extend the `AnnotationFilter`
 class and allow to define the conditions for the filtering. Each field or
 feature is represented by its own filter class and each filter is defined by a
 `value` (the value to be used in the filter) and a `condition`
@@ -49,7 +49,7 @@ In the example below we define a `SymbolFilter` to retrieve all entries from an
 annotation resource for a gene with the symbol *BCL2*.
 
 ```{r simple-symbol-filt}
-library(AnnotationFilters)
+library(AnnotationFilter)
 
 smbl <- SymbolFilter("BCL2")
 smbl
@@ -64,10 +64,10 @@ smbl
 ```
 
 
-# Using `AnnotationFilters` in other packages
+# Using `AnnotationFilter` in other packages
 
 In this section we show, on the example of the `r Biocpkg("ensembldb")` package,
-how `AnnotationFilters` can be used/imported in another package and how the
+how `AnnotationFilter` can be used/imported in another package and how the
 actual filtering is carried out.
 
 # Session information

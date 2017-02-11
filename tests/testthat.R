@@ -1,4 +1,4 @@
 library(testthat)
-library(AnnotationFilters)
+library(AnnotationFilter)
 
-test_check("AnnotationFilters")
+test_check("AnnotationFilter")
