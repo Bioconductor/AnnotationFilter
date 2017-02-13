@@ -336,7 +336,7 @@ setMethod("show", "GRangesFilter", function(object) {
 NULL
 
 .fieldToClass <- function(field) {
-    class <- sub("_([[:alpha:]])", "\\U\\1", field, perl=TRUE)
+    class <- gsub("_([[:alpha:]])", "\\U\\1", field, perl=TRUE)
     class <- sub("^([[:alpha:]])", "\\U\\1", class, perl=TRUE)
     paste0(class, if (length(class)) "Filter" else character(0))
 }

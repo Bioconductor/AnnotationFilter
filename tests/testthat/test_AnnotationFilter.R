@@ -69,7 +69,7 @@ test_that("GRangesFilter works", {
 test_that("fieldToClass works", {
     expect_identical(AnnotationFilter:::.fieldToClass("gene_id"),
                      "GeneIdFilter")
-    ## Support replacement for multiple _
-    ## expect_identical(AnnotationFilter:::.fieldToClass("gene_seq_start"),
-    ##                  "GeneSeqStartFilter")
+    ## Support replacement for multiple _ : issue #13
+    expect_identical(AnnotationFilter:::.fieldToClass("gene_seq_start"),
+                     "GeneSeqStartFilter")
 })
