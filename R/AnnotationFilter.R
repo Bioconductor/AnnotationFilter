@@ -81,6 +81,9 @@
 #'     or \code{"<="}. For \code{CharacterFilter}, one of \code{"=="},
 #'     \code{"!="}, \code{"startsWith"} or \code{"endsWith"}. Default
 #'     condition is \code{"=="}.
+#'
+#' @seealso \code{\link{AnnotationFilterList}} for combining
+#' \code{AnnotationFilter} objects.
 NULL
 
 .CONDITION <- list(

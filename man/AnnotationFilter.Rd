@@ -171,4 +171,8 @@ gsf
 
 supportedFilters()
 }
+\seealso{
+\code{\link{AnnotationFilterList}} for combining
+\code{AnnotationFilter} objects.
+}
 

@@ -1,6 +1,6 @@
 Package: AnnotationFilter
 Title: Facilities for Filtering Bioconductor Annotation Resources
-Version: 0.0.12
+Version: 0.0.13
 Authors@R: c(
     person("Martin", "Morgan", email = "martin.morgan@roswellpark.org",
         role = "aut"),
@@ -29,4 +29,5 @@ RoxygenNote: 5.0.1
 Collate:
     'AllGenerics.R'
     'AnnotationFilter.R'
+    'AnnotationFilterList.R'
     'translate-utils.R'
