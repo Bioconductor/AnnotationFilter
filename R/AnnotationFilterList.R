@@ -2,20 +2,22 @@
 
 #' @name AnnotationFilterList
 #'
-#' @title Combining AnnotationFilters
+#' @title Combining annotation filters
 #'
 #' @aliases AnnotationFilterList-class
 #' 
 #' @description The \code{AnnotationFilterList} allows to combine filter objects
 #' extending the \code{\link{AnnotationFilter}} class to construct more complex
-#' qyeries. Consecutive filter objects in the \code{AnnotationFilterList} can be
-#' combined by a logical \emph{and} (\code{&}) or \emph{or} (\code{|}).
-#'
-#' @usage
-#'
-#' AnnotationFilterList(..., logOp = character())
+#' queries. Consecutive filter objects in the \code{AnnotationFilterList} can be
+#' combined by a logical \emph{and} (\code{&}) or \emph{or} (\code{|}). The
+#' \code{AnnotationFilterList} extends \code{list}, individual elements can thus
+#' be accessed with \code{[[}.
 #' 
 #' @exportClass AnnotationFilterList
+#' @rdname AnnotationFilterList
+#' @name AnnotationFilterList
+NULL
+
 .AnnotationFilterList <- setClass(
     "AnnotationFilterList",
     contains = "list",
@@ -93,6 +95,9 @@ setValidity("AnnotationFilterList", function(object) {
 #' ## and the list with the filter objects
 #' value(afl)
 #'
+#' ## Access individual filters.
+#' afl[[1]]
+#'
 #' ## Create a filter in the form of: get all features where the gene name is
 #' ## either ("BCL2" or "BCL2L11") and the transcript biotype is not
 #' ## "protein_coding" or the seq_name is "Y". Hence, this will get all feature
@@ -134,8 +139,9 @@ setMethod("show", "AnnotationFilterList", function(object) {
 #' @aliases logOp
 #' @rdname AnnotationFilterList
 #' 
-#' @description \code{logOp()} get the \code{character} with the logical
-#' operators combining the filters.
+#' @description \code{logOp()} get the logical operators that combine the
+#' filters. Returns a \code{character} vector of length
+#' \code{length(object) - 1}.
 #'
 #' @param object An \code{AnnotationFilterList}.
 #' @export
@@ -146,7 +152,7 @@ setMethod("logOp", "AnnotationFilterList", function(object) {
 #' @rdname AnnotationFilterList
 #'
 #' @description \code{value()} get a \code{list} with the \code{AnnotationFilter}
-#' objects.
+#' objects. Use \code{[[} to access individual filters.
 #' @export
 setMethod("value", "AnnotationFilterList", function(object) {
     object@.Data
