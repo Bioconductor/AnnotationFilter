@@ -33,16 +33,16 @@ feature is represented by its own filter class and each filter is defined by a
 `value` (the value to be used in the filter) and a `condition`
 (e.g. `"=="`). The `SymbolFilter` class for example is supposed to filter data
 based on gene symbols (used as the filter's values). Filter classes are grouped
-into `character` based filters (such as the `SymbolFilter`) and `integer` based
-filters (such as the `GeneSeqStartFilter`). The `character` based filters can
-take a single or multiple `character ` values and support conditions `"=="`,
+into character-based filters (such as the `SymbolFilter`) and integer-based
+filters (such as the `GeneSeqStartFilter`). The character-based filters can
+take a single or multiple `character` values and support conditions `"=="`,
 `"!="`, `"startsWith"` and `"endsWith"`. Integer filters can only take a single
 value and support, in addition to `"=="` and "`"!="`, also the conditions `">"`,
 `">="`, `"<"` and `"<="`. The name of a filter always matches its `field` (which
 in most cases will represent the name of the database column containing the
 corresponding features), with *snake case* replaced by *camel case* followed by
-*Filter*. The `field` for the `SymbolFilter` for example is `"symbol"` and the
-`field` for the `GeneSeqStartFilter` `"gene_seq_start"`. Filter are supposed to
+*Filter*. The field for the `SymbolFilter` for example is `"symbol"` and the
+field for the `GeneSeqStartFilter` `"gene_seq_start"`. Filter are supposed to
 be *read only* and hence do not provide setter methods for their slots.
 
 In the example below we define a `SymbolFilter` to retrieve all entries from an
@@ -63,12 +63,116 @@ smbl <- SymbolFilter("BCL2", condition = "startsWith")
 smbl
 ```
 
+In addition to the constructor functions, `AnnotationFilter` instances can be
+generated also by *translating* logical expressions. In the example below we
+create a `SymbolFilter` by converting a logical expression.
+
+```{r convert-expression}
+smbl <- convertFilterExpression(symbol == "BCL2")
+smbl
+```
+
+Also combinations of filters are supported. Below we create a
+`AnnotationFilterList` containing two filter objects.
+
+```{r convert-multi-expression}
+flt <- convertFilterExpression(symbol == "BCL2" & tx_biotype == "protein_coding")
+flt
+```
+
+Note however that nesting of expressions, such as `(symbol == "BCL2L11" &
+tx_biotype == "nonsense_mediated_decay") | (symbol == "BCL2" &
+tx_biotype == "protein_coding")` is  not possible.
+
 
 # Using `AnnotationFilter` in other packages
 
-In this section we show, on the example of the `r Biocpkg("ensembldb")` package,
-how `AnnotationFilter` can be used/imported in another package and how the
-actual filtering is carried out.
+The `AnnotationFilter` package does only provide filter classes, but no
+filtering functionality. This has to be implemented in the package using the
+filters. In this section we show, on the example of the `r Biocpkg("ensembldb")`
+package, how `AnnotationFilter` can be used/imported in another package and how
+filtering functionality could be implemented. For `ensembldb`,
+`AnnotationFilter` objects should be translated into corresponding SQL queries. 
+
+Below we define a method `queryForEnsDb` that returns a string representing the
+SQL condition. Before we need to define some helper functions that e.g. quote
+character strings.
+
+```{r helpers}
+.valueForEnsDb <- function(x) {
+    vals <- unique(value(x))
+    ## Quote character values.
+    if (is(x, "CharacterFilter"))
+        vals <- paste0("'",
+        (gsub(vals, pattern = "'", replacement = "''")),
+        "'")
+    ## Combine multiple values.
+    if (length(vals) > 1)
+        vals <- paste0("(", paste0(vals, collapse = ","), ")")
+    ## Process the like/startsWith/endsWith
+    if (condition(x) == "startsWith")
+        vals <- paste0("'", value(x), "%'")
+    if (condition(x) == "endsWith")
+        vals <- paste0("'%", value(x), "'")
+    return(vals)    
+}
+
+## Test it
+.valueForEnsDb(SymbolFilter(c("BCL2", "BCL2L11")))
+```
+
+In addition we need to convert the `condition` to a SQL condition.
+
+```{r helpers-condition}
+.conditionForEnsDb <- function(x) {
+    cond <- condition(x)
+    if (length(unique(value(x))) > 1) {
+        if (cond == "==")
+            cond <- "in"
+        if (cond == "!=")
+            cond <- "not in"
+    }
+    if (cond == "==")
+        cond <- "="
+    if (cond %in% c("startsWith", "endsWith"))
+        cond <- "like"
+    return(cond)
+}
+
+## Test
+.conditionForEnsDb(SymbolFilter(c("BCL2", "BCL2L11")))
+
+```
+
+Now we define the method that generates the query.
+
+```{r queryForEnsDb-def, results = "hide"}
+setGeneric("queryForEnsDb", function(object, ...)
+           standardGeneric("queryForEnsDb"))
+## Implement for CharacterFilter
+setMethod("queryForEnsDb", "CharacterFilter", function(object, ...) {
+    paste(object@field, .conditionForEnsDb(object),
+          .valueForEnsDb(object))
+})
+
+```
+
+The SQL `where` condition for a `SymbolFilter` is thus:
+
+```{r symbol-where}
+smbls <- SymbolFilter(c("BCL2", "BCL211"))
+
+paste("where", queryForEnsDb(smbls))
+```
+
+Now, this assumes that the database columns are called identically to the
+`@field` slot of the `AnnotationFilter`. This is not the case for all columns in
+an `EnsDb` database, thus, an additional function would be required here, that
+returns the actual database table columns for each `AnnotationFilter`.
+
+To translate combinations of filters we would also have to implement a
+`queryForEnsDb` for `AnnoationFilterList` objects.
+
 
 # Session information
 
