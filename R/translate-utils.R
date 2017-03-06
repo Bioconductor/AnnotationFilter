@@ -93,6 +93,8 @@ filtReg$`|` <- .combine_op("|")
 assign(".LOG_OP_REG", filtReg, envir = topenv())
 
 
+#' @rdname translate-utils
+#'
 #' @title Converting filter expressions into AnnotationFilters
 #' 
 #' @description \code{convertFilterExpression} \emph{translates} a logical

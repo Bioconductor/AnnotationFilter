@@ -39,4 +39,3 @@ flt <- convertFilterExpression(gene_id \%in\% c("BCL2", "BCL2L11") &
 flt
 
 }
-

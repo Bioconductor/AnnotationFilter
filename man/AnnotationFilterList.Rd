@@ -4,9 +4,10 @@
 \name{AnnotationFilterList}
 \alias{AnnotationFilterList}
 \alias{AnnotationFilterList-class}
-\alias{logOp}
-\alias{logOp,AnnotationFilterList-method}
+\alias{AnnotationFilterList}
 \alias{show,AnnotationFilterList-method}
+\alias{logOp,AnnotationFilterList-method}
+\alias{logOp}
 \alias{value,AnnotationFilterList-method}
 \title{Combining annotation filters}
 \usage{
@@ -83,4 +84,3 @@ afl
 \code{\link{supportedFilters}} for available
 \code{\link{AnnotationFilter}} objects
 }
-
