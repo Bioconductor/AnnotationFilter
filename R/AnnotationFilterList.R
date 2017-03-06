@@ -1,83 +1,87 @@
 #' @include AnnotationFilter.R
 
+#' @rdname AnnotationFilterList
+#'
 #' @name AnnotationFilterList
 #'
 #' @title Combining annotation filters
 #'
 #' @aliases AnnotationFilterList-class
-#' 
-#' @description The \code{AnnotationFilterList} allows to combine filter objects
-#' extending the \code{\link{AnnotationFilter}} class to construct more complex
-#' queries. Consecutive filter objects in the \code{AnnotationFilterList} can be
-#' combined by a logical \emph{and} (\code{&}) or \emph{or} (\code{|}). The
-#' \code{AnnotationFilterList} extends \code{list}, individual elements can thus
-#' be accessed with \code{[[}.
-#' 
+#'
+#' @description The \code{AnnotationFilterList} allows to combine
+#'     filter objects extending the \code{\link{AnnotationFilter}}
+#'     class to construct more complex queries. Consecutive filter
+#'     objects in the \code{AnnotationFilterList} can be combined by a
+#'     logical \emph{and} (\code{&}) or \emph{or} (\code{|}). The
+#'     \code{AnnotationFilterList} extends \code{list}, individual
+#'     elements can thus be accessed with \code{[[}.
+#'
 #' @exportClass AnnotationFilterList
-#' @rdname AnnotationFilterList
-#' @name AnnotationFilterList
 NULL
 
 .AnnotationFilterList <- setClass(
     "AnnotationFilterList",
     contains = "list",
-    slots = c(
-        logOp = "character"
-    ),
-    prototype = prototype(
-        logOp = character()
-    )
+    slots = c(logOp = "character")
 )
 
 .LOG_OPS <- c("&", "|")
 
-setValidity("AnnotationFilterList", function(object) {
+setValidity("AnnotationFilterList",
+    function(object)
+{
     txt <- character()
-    vals <- object@.Data
-    logOp <- object@logOp
-    if (length(vals) == 0) {
-        if (length(logOp))
-            txt <- c(txt, "'logOp' can not have length > 0 if the object is empty")
-    } else {
-        ## Note: we allow length of vals being 1, but then logOp has to be empty.
-        ## Check content:
-        if (!all(unlist(lapply(vals, function(z) {
-            is(z, "AnnotationFilter") | is(z, "AnnotationFilterList")
-        }), use.names = FALSE)))
-            txt <- c(txt, paste0("the object should contain only ",
-                                 "'AnnotationFilter' or 'AnnotationFilterList' ",
-                                 "objects"))
+    filters <- .aflvalue(object)
+    logOp <- .logOp(object)
+    if (length(filters) == 0 && length(logOp)) {
+        txt <- c(
+            txt, "'logOp' can not have length > 0 if the object is empty"
+        )
+    } else if (length(filters) != 0) {
+        ## Note: we allow length of filters being 1, but then logOp has
+        ## to be empty.  Check content:
+        fun <- function(z)
+            is(z, "AnnotationFilter") || is(z, "AnnotationFilterList")
+        test <- vapply(filters, fun, logical(1))
+        if (!all(test)){
+            txt <- c(
+                txt, "only 'AnnotationFilter' or 'AnnotationFilterList' allowed"
+            )
+        }
         ## Check that logOp has length object -1
-        if (length(logOp) != length(vals) - 1)
+        if (length(logOp) != length(filters) - 1)
             txt <- c(txt, "length of 'logOp' has to be length of the object -1")
         ## Check content of logOp.
         if (!all(logOp %in% .LOG_OPS))
             txt <- c(txt, "'logOp' can only contain '&' and '|'")
-        if (length(txt)) txt else TRUE
     }
+
+    if (length(txt)) txt else TRUE
 })
 
 ## AnnotationFilterList constructor function.
 #' @rdname AnnotationFilterList
+#'
 #' @name AnnotationFilterList
-#' 
-#' @param ... individual \code{\link{AnnotationFilter}} objects or a mixture of
-#' \code{AnnotationFilter} and \code{AnnotationFilterList} objects.
-#' 
-#' @param logOp \code{character} of length being equal to the numner of submitted
-#' \code{AnnotationFilter} objects -1. Each value representing the logical
-#' operation to combine consecutive filters, i.e. the first element being the
-#' logical operation to combine the first and second \code{AnnotationFilter}, the
-#' second element being the logical operation to combine the second and third
-#' \code{AnnotationFilter} and so on. Allowed values are \code{"&"} and
-#' \code{"|"}. The function assumes a logical \emph{and} between all elements by
-#' default.
+#'
+#' @param ... individual \code{\link{AnnotationFilter}} objects or a
+#'     mixture of \code{AnnotationFilter} and
+#'     \code{AnnotationFilterList} objects.
+#'
+#' @param logOp \code{character} of length being equal to the numner
+#'     of submitted \code{AnnotationFilter} objects -1. Each value
+#'     representing the logical operation to combine consecutive
+#'     filters, i.e. the first element being the logical operation to
+#'     combine the first and second \code{AnnotationFilter}, the
+#'     second element being the logical operation to combine the
+#'     second and third \code{AnnotationFilter} and so on. Allowed
+#'     values are \code{"&"} and \code{"|"}. The function assumes a
+#'     logical \emph{and} between all elements by default.
 #'
 #' @seealso \code{\link{supportedFilters}} for available
-#' \code{\link{AnnotationFilter}} objects
-#' 
-#' @examples
+#'     \code{\link{AnnotationFilter}} objects
 #'
+#' @examples
 #' ## Create some AnnotationFilters
 #' gf <- GenenameFilter(c("BCL2", "BCL2L11"))
 #' tbtf <- TxBiotypeFilter("protein_coding", condition = "!=")
@@ -89,12 +93,6 @@ setValidity("AnnotationFilterList", function(object) {
 #' afl <- AnnotationFilterList(gf, tbtf)
 #' afl
 #'
-#' ## Get the logical operator combining the filters
-#' logOp(afl)
-#'
-#' ## and the list with the filter objects
-#' value(afl)
-#'
 #' ## Access individual filters.
 #' afl[[1]]
 #'
@@ -105,55 +103,52 @@ setValidity("AnnotationFilterList", function(object) {
 #' ## features on chromosome Y.
 #' afl <- AnnotationFilterList(gf, tbtf, SeqNameFilter("Y"), logOp = c("&", "|"))
 #' afl
-#' 
+#'
 #' @export
-AnnotationFilterList <- function(..., logOp = character()) {
-    vals <- list(...)
+AnnotationFilterList <-
+    function(..., logOp = character())
+{
+    filters <- list(...)
     ## By default we're assuming & between elements.
-    if (length(vals) > 1 & length(logOp) == 0)
-        logOp <- rep("&", (length(vals) - 1))
-    return(.AnnotationFilterList(vals, logOp = logOp))
+    if (length(filters) > 1 & length(logOp) == 0)
+        logOp <- rep("&", (length(filters) - 1))
+    .AnnotationFilterList(filters, logOp = logOp)
 }
 
+.logOp <- function(object) object@logOp
+
+.aflvalue <- function(object) object@.Data
+
 #' @rdname AnnotationFilterList
+#'
+#' @description \code{value()} get a \code{list} with the
+#'     \code{AnnotationFilter} objects. Use \code{[[} to access
+#'     individual filters.
 #' @export
-setMethod("show", "AnnotationFilterList", function(object) {
-    cat("class:", class(object))
-    if (length(object) == 0) {
-        cat("empty object")
-    } else {
-        cat("\nfilters:\n")
-        if (length(object) == 1) {
-            show(object[[1]])  
-        } else {
-            cat("\n")
-            show(object[[1]])
-            for (i in seq_along(object@logOp)) {
-                cat("", object@logOp[i], "\n")
-                show(object[[i + 1]])
-            }
-        }
+setMethod("value", "AnnotationFilterList", .aflvalue)
+
+
+#' @rdname AnnotationFilterList
+#'
+#' @param object An object of class \code{AnnotationFilterList}.
+#'
+#' @importFrom utils tail
+#'
+#' @export
+setMethod("show", "AnnotationFilterList",
+    function(object)
+{
+    cat("class:", class(object),
+        "\nlength:", length(object)
+    )
+
+    if (length(object) == 0L)
+        return()
+
+    cat("\nfilters:\n\n")
+    show(object[[1L]])
+    for (i in tail(seq_along(object), -1L)) {
+        cat("\n", .logOp(object)[i - 1L], "\n\n")
+        show(object[[i]])
     }
-})
-
-#' @aliases logOp
-#' @rdname AnnotationFilterList
-#' 
-#' @description \code{logOp()} get the logical operators that combine the
-#' filters. Returns a \code{character} vector of length
-#' \code{length(object) - 1}.
-#'
-#' @param object An \code{AnnotationFilterList}.
-#' @export
-setMethod("logOp", "AnnotationFilterList", function(object) {
-    object@logOp
-})
-
-#' @rdname AnnotationFilterList
-#'
-#' @description \code{value()} get a \code{list} with the \code{AnnotationFilter}
-#' objects. Use \code{[[} to access individual filters.
-#' @export
-setMethod("value", "AnnotationFilterList", function(object) {
-    object@.Data
 })

@@ -5,52 +5,47 @@
 \alias{AnnotationFilterList}
 \alias{AnnotationFilterList-class}
 \alias{AnnotationFilterList}
-\alias{show,AnnotationFilterList-method}
-\alias{logOp,AnnotationFilterList-method}
-\alias{logOp}
 \alias{value,AnnotationFilterList-method}
+\alias{show,AnnotationFilterList-method}
 \title{Combining annotation filters}
 \usage{
 AnnotationFilterList(..., logOp = character())
 
-\S4method{show}{AnnotationFilterList}(object)
-
-\S4method{logOp}{AnnotationFilterList}(object)
-
 \S4method{value}{AnnotationFilterList}(object)
+
+\S4method{show}{AnnotationFilterList}(object)
 }
 \arguments{
-\item{...}{individual \code{\link{AnnotationFilter}} objects or a mixture of
-\code{AnnotationFilter} and \code{AnnotationFilterList} objects.}
+\item{...}{individual \code{\link{AnnotationFilter}} objects or a
+mixture of \code{AnnotationFilter} and
+\code{AnnotationFilterList} objects.}
 
-\item{logOp}{\code{character} of length being equal to the numner of submitted
-\code{AnnotationFilter} objects -1. Each value representing the logical
-operation to combine consecutive filters, i.e. the first element being the
-logical operation to combine the first and second \code{AnnotationFilter}, the
-second element being the logical operation to combine the second and third
-\code{AnnotationFilter} and so on. Allowed values are \code{"&"} and
-\code{"|"}. The function assumes a logical \emph{and} between all elements by
-default.}
+\item{logOp}{\code{character} of length being equal to the numner
+of submitted \code{AnnotationFilter} objects -1. Each value
+representing the logical operation to combine consecutive
+filters, i.e. the first element being the logical operation to
+combine the first and second \code{AnnotationFilter}, the
+second element being the logical operation to combine the
+second and third \code{AnnotationFilter} and so on. Allowed
+values are \code{"&"} and \code{"|"}. The function assumes a
+logical \emph{and} between all elements by default.}
 
-\item{object}{An \code{AnnotationFilterList}.}
+\item{object}{An object of class \code{AnnotationFilterList}.}
 }
 \description{
-The \code{AnnotationFilterList} allows to combine filter objects
-extending the \code{\link{AnnotationFilter}} class to construct more complex
-queries. Consecutive filter objects in the \code{AnnotationFilterList} can be
-combined by a logical \emph{and} (\code{&}) or \emph{or} (\code{|}). The
-\code{AnnotationFilterList} extends \code{list}, individual elements can thus
-be accessed with \code{[[}.
+The \code{AnnotationFilterList} allows to combine
+    filter objects extending the \code{\link{AnnotationFilter}}
+    class to construct more complex queries. Consecutive filter
+    objects in the \code{AnnotationFilterList} can be combined by a
+    logical \emph{and} (\code{&}) or \emph{or} (\code{|}). The
+    \code{AnnotationFilterList} extends \code{list}, individual
+    elements can thus be accessed with \code{[[}.
 
-\code{logOp()} get the logical operators that combine the
-filters. Returns a \code{character} vector of length
-\code{length(object) - 1}.
-
-\code{value()} get a \code{list} with the \code{AnnotationFilter}
-objects. Use \code{[[} to access individual filters.
+\code{value()} get a \code{list} with the
+    \code{AnnotationFilter} objects. Use \code{[[} to access
+    individual filters.
 }
 \examples{
-
 ## Create some AnnotationFilters
 gf <- GenenameFilter(c("BCL2", "BCL2L11"))
 tbtf <- TxBiotypeFilter("protein_coding", condition = "!=")
@@ -61,12 +56,6 @@ tbtf <- TxBiotypeFilter("protein_coding", condition = "!=")
 ## and the transcript biotype is not "protein_coding".
 afl <- AnnotationFilterList(gf, tbtf)
 afl
-
-## Get the logical operator combining the filters
-logOp(afl)
-
-## and the list with the filter objects
-value(afl)
 
 ## Access individual filters.
 afl[[1]]
@@ -82,5 +71,5 @@ afl
 }
 \seealso{
 \code{\link{supportedFilters}} for available
-\code{\link{AnnotationFilter}} objects
+    \code{\link{AnnotationFilter}} objects
 }

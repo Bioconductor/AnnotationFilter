@@ -12,16 +12,16 @@ examples below.}
 }
 \description{
 \code{convertFilterExpression} \emph{translates} a logical
-expression such as \code{gene_id == "BCL2"} into a filter object extending the
-\code{\link{AnnotationFilter}} class (in the example a
-\code{\link{GeneIdFilter}} object) or an \code{\link{AnnotationFilterList}} if
-the expression contains multiple conditions.
+    expression such as \code{gene_id == "BCL2"} into a filter object
+    extending the \code{\link{AnnotationFilter}} class (in the example a
+    \code{\link{GeneIdFilter}} object) or an
+    \code{\link{AnnotationFilterList}} if the expression contains multiple
+    conditions.
 }
 \note{
 No nesting of filter expressions (with \code{(}) is supported yet.
 }
 \examples{
-
 ## Convert a filter expression based on a gene ID to a GeneIdFilter
 gnf <- convertFilterExpression(gene_id == "BCL2")
 gnf
@@ -37,5 +37,4 @@ flt <- convertFilterExpression(gene_id \%in\% c("BCL2", "BCL2L11") &
                                tx_biotype == "nonsense_mediated_decay" |
                                seq_name == "Y")
 flt
-
 }

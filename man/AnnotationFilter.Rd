@@ -160,7 +160,6 @@ default \code{field} of the filter.
 \examples{
 ## filter by GRanges
 GRangesFilter(GenomicRanges::GRanges("chr10:87869000-87876000"))
-
 ## Create a SymbolFilter to filter on a gene's symbol.
 sf <- SymbolFilter("BCL2")
 sf
@@ -174,5 +173,5 @@ supportedFilters()
 }
 \seealso{
 \code{\link{AnnotationFilterList}} for combining
-\code{AnnotationFilter} objects.
+    \code{AnnotationFilter} objects.
 }

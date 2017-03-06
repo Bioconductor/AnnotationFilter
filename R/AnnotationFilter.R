@@ -83,7 +83,7 @@
 #'     condition is \code{"=="}.
 #'
 #' @seealso \code{\link{AnnotationFilterList}} for combining
-#' \code{AnnotationFilter} objects.
+#'     \code{AnnotationFilter} objects.
 NULL
 
 .CONDITION <- list(
@@ -165,16 +165,21 @@ setValidity("AnnotationFilter", function(object) {
 .value <- function(object) object@value
 
 #' @rdname AnnotationFilter
+#'
 #' @aliases condition
+#'
 #' @description \code{condition()} get the \code{condition} value for
 #'     the filter \code{object}.
 #'
 #' @param object An \code{AnnotationFilter} object.
+#'
 #' @export
 setMethod("condition", "AnnotationFilter", .condition)
 
 #' @rdname AnnotationFilter
+#'
 #' @aliases value
+#'
 #' @description \code{value()} get the \code{value} for the filter
 #'     \code{object}.
 #'
@@ -182,6 +187,7 @@ setMethod("condition", "AnnotationFilter", .condition)
 setMethod("value", "AnnotationFilter", .value)
 
 #' @importFrom methods show
+#'
 #' @export
 setMethod("show", "AnnotationFilter", function(object){
     cat("class:", class(object),
@@ -207,6 +213,7 @@ setValidity("CharacterFilter", function(object) {
 })
 
 #' @importFrom methods show callNextMethod
+#'
 #' @export
 setMethod("show", "CharacterFilter", function(object) {
     callNextMethod()
@@ -234,8 +241,11 @@ setMethod("show", "IntegerFilter", function(object) {
 })
 
 #' @rdname AnnotationFilter
+#'
 #' @importFrom GenomicRanges GRanges
+#'
 #' @importClassesFrom GenomicRanges GRanges
+#'
 #' @exportClass GRangesFilter
 .GRangesFilter <- setClass(
     "GRangesFilter",
@@ -263,7 +273,7 @@ setValidity("GRangesFilter", function(object) {
 #' @param type \code{character(1)} indicating how overlaps are to be
 #'     filtered. See \code{findOverlaps} in the IRanges package for a
 #'     description of this argument.
-#' 
+#'
 #' @examples
 #' ## filter by GRanges
 #' GRangesFilter(GenomicRanges::GRanges("chr10:87869000-87876000"))
@@ -282,14 +292,17 @@ GRangesFilter <-
 .feature <- function(object) object@feature
 
 #' @aliases feature
+#'
 #' @description \code{feature()} get the \code{feature} for the
 #'     \code{GRangesFilter} \code{object}.
 #'
 #' @rdname AnnotationFilter
+#'
 #' @export
 feature <- .feature
 
 #' @importFrom GenomicRanges show
+#'
 #' @export
 setMethod("show", "GRangesFilter", function(object) {
     callNextMethod()
@@ -304,6 +317,7 @@ setMethod("show", "GRangesFilter", function(object) {
 ##
 
 #' @rdname AnnotationFilter
+#'
 #' @name AnnotationFilter
 #'
 #' @param feature \code{character(1)} defining on what feature the
@@ -311,7 +325,6 @@ setMethod("show", "GRangesFilter", function(object) {
 #'     \code{"gene"}, \code{"tx"} or \code{"exon"}.
 #'
 #' @examples
-#' 
 #' ## Create a SymbolFilter to filter on a gene's symbol.
 #' sf <- SymbolFilter("BCL2")
 #' sf
@@ -389,6 +402,7 @@ local({
 }
 
 #' @rdname AnnotationFilter
+#'
 #' @examples
 #' supportedFilters()
 #' @export
