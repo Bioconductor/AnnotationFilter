@@ -4,7 +4,8 @@ output:
     BiocStyle::html_document2:
         toc_float: true
 vignette: >
-    %\VignetteIndexEntry{Facilities for Filtering Bioconductor Annotation resources}
+    %\VignetteIndexEntry{Facilities for Filtering Bioconductor Annotation 
+    resources}
     %\VignetteEngine{knitr::rmarkdown}
     %\VignetteEncoding{UTF-8}
     %\VignettePackage{AnnotationFilter}
@@ -76,7 +77,8 @@ Also combinations of filters are supported. Below we create a
 `AnnotationFilterList` containing two filter objects.
 
 ```{r convert-multi-expression}
-flt <- convertFilterExpression(symbol == "BCL2" & tx_biotype == "protein_coding")
+flt <- convertFilterExpression(symbol == "BCL2" &
+                               tx_biotype == "protein_coding")
 flt
 ```
 
@@ -151,7 +153,7 @@ setGeneric("queryForEnsDb", function(object, ...)
            standardGeneric("queryForEnsDb"))
 ## Implement for CharacterFilter
 setMethod("queryForEnsDb", "CharacterFilter", function(object, ...) {
-    paste(object@field, .conditionForEnsDb(object),
+    paste(field(object), .conditionForEnsDb(object),
           .valueForEnsDb(object))
 })
 
@@ -166,8 +168,8 @@ paste("where", queryForEnsDb(smbls))
 ```
 
 Now, this assumes that the database columns are called identically to the
-`@field` slot of the `AnnotationFilter`. This is not the case for all columns in
-an `EnsDb` database, thus, an additional function would be required here, that
+`field` of the `AnnotationFilter`. This is not the case for all columns in an
+`EnsDb` database, thus, an additional function would be required here, that
 returns the actual database table columns for each `AnnotationFilter`.
 
 To translate combinations of filters we would also have to implement a

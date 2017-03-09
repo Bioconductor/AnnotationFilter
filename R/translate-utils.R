@@ -18,7 +18,7 @@
             new(class, condition = sep, field = field)
         }, error = function(e) {
             stop("No AnnotationFilter class '", class, "' for field '",
-                 field, "' defined")
+                field, "' defined")
         })
         ## Fill with values.
         force(e2)
@@ -93,6 +93,9 @@
 #'
 #' @param expr an expression describing the filter rules to be applied. See
 #'     examples below.
+#'
+#' @return \code{convertFilterExpression} returns an
+#'     \code{\link{AnnotationFilter}} or an \code{\link{AnnotationFilterList}}.
 #'
 #' @examples
 #' ## Convert a filter expression based on a gene ID to a GeneIdFilter

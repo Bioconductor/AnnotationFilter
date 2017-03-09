@@ -10,6 +10,10 @@ convertFilterExpression(expr)
 \item{expr}{an expression describing the filter rules to be applied. See
 examples below.}
 }
+\value{
+\code{convertFilterExpression} returns an
+    \code{\link{AnnotationFilter}} or an \code{\link{AnnotationFilterList}}.
+}
 \description{
 \code{convertFilterExpression} \emph{translates} a logical
     expression such as \code{gene_id == "BCL2"} into a filter object

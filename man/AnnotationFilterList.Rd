@@ -32,6 +32,12 @@ logical \emph{and} between all elements by default.}
 
 \item{object}{An object of class \code{AnnotationFilterList}.}
 }
+\value{
+\code{AnnotationFilterList} returns an \code{AnnotationFilterList}.
+
+\code{value} returns a \code{list} with \code{AnnotationFilter}
+    objects.
+}
 \description{
 The \code{AnnotationFilterList} allows to combine
     filter objects extending the \code{\link{AnnotationFilter}}
@@ -65,7 +71,8 @@ afl[[1]]
 ## "protein_coding" or the seq_name is "Y". Hence, this will get all feature
 ## also found by the previous AnnotationFilterList and returns also all
 ## features on chromosome Y.
-afl <- AnnotationFilterList(gf, tbtf, SeqNameFilter("Y"), logOp = c("&", "|"))
+afl <- AnnotationFilterList(gf, tbtf, SeqNameFilter("Y"),
+                            logOp = c("&", "|"))
 afl
 
 }

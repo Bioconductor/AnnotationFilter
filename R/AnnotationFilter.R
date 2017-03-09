@@ -82,6 +82,10 @@
 #'     \code{"!="}, \code{"startsWith"} or \code{"endsWith"}. Default
 #'     condition is \code{"=="}.
 #'
+#' @return The constructor function return an object extending
+#'     \code{AnnotationFilter}. For the return value of the other methods see
+#'     the methods' descriptions.
+#' 
 #' @seealso \code{\link{AnnotationFilterList}} for combining
 #'     \code{AnnotationFilter} objects.
 NULL
@@ -172,7 +176,7 @@ setValidity("AnnotationFilter", function(object) {
 #'     the filter \code{object}.
 #'
 #' @param object An \code{AnnotationFilter} object.
-#'
+#' 
 #' @export
 setMethod("condition", "AnnotationFilter", .condition)
 
@@ -185,6 +189,16 @@ setMethod("condition", "AnnotationFilter", .condition)
 #'
 #' @export
 setMethod("value", "AnnotationFilter", .value)
+
+#' @rdname AnnotationFilter
+#'
+#' @aliases field
+#'
+#' @description \code{field()} get the \code{field} for the filter
+#'     \code{object}.
+#'
+#' @export
+setMethod("field", "AnnotationFilter", .field)
 
 #' @importFrom methods show
 #'

@@ -81,6 +81,8 @@ setValidity("AnnotationFilterList",
 #' @seealso \code{\link{supportedFilters}} for available
 #'     \code{\link{AnnotationFilter}} objects
 #'
+#' @return \code{AnnotationFilterList} returns an \code{AnnotationFilterList}.
+#' 
 #' @examples
 #' ## Create some AnnotationFilters
 #' gf <- GenenameFilter(c("BCL2", "BCL2L11"))
@@ -101,7 +103,8 @@ setValidity("AnnotationFilterList",
 #' ## "protein_coding" or the seq_name is "Y". Hence, this will get all feature
 #' ## also found by the previous AnnotationFilterList and returns also all
 #' ## features on chromosome Y.
-#' afl <- AnnotationFilterList(gf, tbtf, SeqNameFilter("Y"), logOp = c("&", "|"))
+#' afl <- AnnotationFilterList(gf, tbtf, SeqNameFilter("Y"),
+#'                             logOp = c("&", "|"))
 #' afl
 #'
 #' @export
@@ -124,6 +127,10 @@ AnnotationFilterList <-
 #' @description \code{value()} get a \code{list} with the
 #'     \code{AnnotationFilter} objects. Use \code{[[} to access
 #'     individual filters.
+#'
+#' @return \code{value} returns a \code{list} with \code{AnnotationFilter}
+#'     objects.
+#' 
 #' @export
 setMethod("value", "AnnotationFilterList", .aflvalue)
 
@@ -131,8 +138,6 @@ setMethod("value", "AnnotationFilterList", .aflvalue)
 #' @rdname AnnotationFilterList
 #'
 #' @param object An object of class \code{AnnotationFilterList}.
-#'
-#' @importFrom utils tail
 #'
 #' @export
 setMethod("show", "AnnotationFilterList",

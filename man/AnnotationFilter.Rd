@@ -61,6 +61,8 @@
 \alias{condition}
 \alias{value,AnnotationFilter-method}
 \alias{value}
+\alias{field,AnnotationFilter-method}
+\alias{field}
 \alias{GRangesFilter-class}
 \alias{.GRangesFilter}
 \alias{GRangesFilter}
@@ -97,6 +99,8 @@ SeqStrandFilter(value, condition = "==")
 
 \S4method{value}{AnnotationFilter}(object)
 
+\S4method{field}{AnnotationFilter}(object)
+
 GRangesFilter(value, feature = "gene", type = c("any", "start", "end",
   "within"))
 
@@ -125,6 +129,11 @@ or \code{"<="}. For \code{CharacterFilter}, one of \code{"=="},
 \code{"!="}, \code{"startsWith"} or \code{"endsWith"}. Default
 condition is \code{"=="}.}
 }
+\value{
+The constructor function return an object extending
+    \code{AnnotationFilter}. For the return value of the other methods see
+    the methods' descriptions.
+}
 \description{
 The filters extending the base \code{AnnotationFilter} class
 represent a simple filtering concept for annotation resources.
@@ -144,6 +153,9 @@ resource.
     the filter \code{object}.
 
 \code{value()} get the \code{value} for the filter
+    \code{object}.
+
+\code{field()} get the \code{field} for the filter
     \code{object}.
 
 \code{feature()} get the \code{feature} for the
