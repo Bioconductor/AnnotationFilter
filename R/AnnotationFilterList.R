@@ -139,6 +139,7 @@ setMethod("value", "AnnotationFilterList", .aflvalue)
 #'
 #' @param object An object of class \code{AnnotationFilterList}.
 #'
+#' @importFrom utils tail
 #' @export
 setMethod("show", "AnnotationFilterList",
     function(object)

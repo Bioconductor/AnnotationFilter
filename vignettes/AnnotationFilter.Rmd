@@ -4,8 +4,7 @@ output:
     BiocStyle::html_document2:
         toc_float: true
 vignette: >
-    %\VignetteIndexEntry{Facilities for Filtering Bioconductor Annotation 
-    resources}
+    %\VignetteIndexEntry{Facilities for Filtering Bioconductor Annotation resources}
     %\VignetteEngine{knitr::rmarkdown}
     %\VignetteEncoding{UTF-8}
     %\VignettePackage{AnnotationFilter}
