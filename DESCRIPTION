@@ -1,6 +1,6 @@
 Package: AnnotationFilter
 Title: Facilities for Filtering Bioconductor Annotation Resources
-Version: 0.99.1
+Version: 0.99.2
 Authors@R: c(
     person("Martin", "Morgan", email = "martin.morgan@roswellpark.org",
         role = "aut"),
@@ -17,6 +17,7 @@ Description: This package provides class and other infrastructure to
 Depends:
     R (>= 3.4.0)
 Imports:
+    utils,
     methods,
     GenomicRanges
 Suggests:
