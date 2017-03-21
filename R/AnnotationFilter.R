@@ -293,7 +293,8 @@ setValidity("GRangesFilter", function(object) {
 #' GRangesFilter(GenomicRanges::GRanges("chr10:87869000-87876000"))
 #' @export
 GRangesFilter <-
-    function(value, feature = "gene", type = c("any", "start", "end", "within"))
+    function(value, feature = "gene",
+             type = c("any", "start", "end", "within", "equal"))
 {
     condition <- match.arg(type)
     .GRangesFilter(
