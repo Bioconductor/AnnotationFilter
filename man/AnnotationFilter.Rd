@@ -102,7 +102,7 @@ SeqStrandFilter(value, condition = "==")
 \S4method{field}{AnnotationFilter}(object)
 
 GRangesFilter(value, feature = "gene", type = c("any", "start", "end",
-  "within"))
+  "within", "equal"))
 
 feature(object)
 
