@@ -3,15 +3,20 @@
 \name{convertFilterExpression}
 \alias{convertFilterExpression}
 \alias{convertFilterExpressionQuoted}
+\alias{AnnotationFilter}
 \title{Converting filter expressions into AnnotationFilters}
 \usage{
 convertFilterExpression(expr)
 
 convertFilterExpressionQuoted(expr)
+
+AnnotationFilter(expr)
 }
 \arguments{
 \item{expr}{an expression describing the filter rules to be applied. See
 examples below.}
+
+\item{expr}{A filter expression. See below for examples.}
 }
 \value{
 \code{convertFilterExpression} and
@@ -69,5 +74,4 @@ testFun(gene_id == 100)
 ## quoted expression
 filter_expr <- substitute(gene_id == 100)
 convertFilterExpressionQuoted(filter_expr)
-
 }

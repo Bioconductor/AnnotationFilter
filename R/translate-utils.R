@@ -54,29 +54,42 @@
     }
 }
 
-#' The \code{.LOG_OP_REG} is an \code{environment} providing functions for
+#' The \code{.LOG_OP_REG} is a \code{list} providing functions for
 #' common logical operations to translate expressions into AnnotationFilter
 #' objects.
 #'
 #' @noRd
-.LOG_OP_REG <- local({
-    filtReg <- new.env() # parent=emptyenv() breaks look-up
+.LOG_OP_REG <- list()
+## Assign conditions.
+.LOG_OP_REG$`==` <- .binary_op("==")
+.LOG_OP_REG$`%in%` <- .binary_op("==")
+.LOG_OP_REG$`!=` <- .binary_op("!=")
+.LOG_OP_REG$`>` <- .binary_op(">")
+.LOG_OP_REG$`<` <- .binary_op("<")
+.LOG_OP_REG$`>=` <- .binary_op(">=")
+.LOG_OP_REG$`<=` <- .binary_op("<=")
+## combine filters
+.LOG_OP_REG$`&` <- .combine_op("&")
+.LOG_OP_REG$`|` <- .combine_op("|")
 
-    ## Assign conditions.
-    filtReg$`==` <- .binary_op("==")
-    filtReg$`%in%` <- .binary_op("==")
-    filtReg$`!=` <- .binary_op("!=")
-    filtReg$`>` <- .binary_op(">")
-    filtReg$`<` <- .binary_op("<")
-    filtReg$`>=` <- .binary_op(">=")
-    filtReg$`<=` <- .binary_op("<=")
+## .LOG_OP_REG <- local({
+##     filtReg <- new.env() # parent=emptyenv() breaks look-up
 
-    ## combine filters
-    filtReg$`&` <- .combine_op("&")
-    filtReg$`|` <- .combine_op("|")
+##     ## Assign conditions.
+##     filtReg$`==` <- .binary_op("==")
+##     filtReg$`%in%` <- .binary_op("==")
+##     filtReg$`!=` <- .binary_op("!=")
+##     filtReg$`>` <- .binary_op(">")
+##     filtReg$`<` <- .binary_op("<")
+##     filtReg$`>=` <- .binary_op(">=")
+##     filtReg$`<=` <- .binary_op("<=")
 
-    filtReg
-})
+##     ## combine filters
+##     filtReg$`&` <- .combine_op("&")
+##     filtReg$`|` <- .combine_op("|")
+
+##     filtReg
+## })
 
 #' @rdname translate-utils
 #'
@@ -148,10 +161,51 @@ convertFilterExpression <-
 #' ## quoted expression
 #' filter_expr <- substitute(gene_id == 100)
 #' convertFilterExpressionQuoted(filter_expr)
-#' 
+#'
 #' @export
 convertFilterExpressionQuoted <-
     function(expr)
 {
-    eval(expr, envir = .LOG_OP_REG)
+    eval(expr, .LOG_OP_REG)
+}
+
+#' @rdname translate-utils
+#'
+#' @description \code{AnnotationFilter} \emph{translates} a filter
+#'     expression such as \code{~ gene_id == "BCL2"} into a filter object
+#'     extending the \code{\link{AnnotationFilter}} class (in the example a
+#'     \code{\link{GeneIdFilter}} object) or an
+#'     \code{\link{AnnotationFilterList}} if the expression contains multiple
+#'     conditions (see examples below).
+#'
+#' @details Filter expressions have to be written as formulas, i.e. starting
+#'     with a \code{~}.
+#' 
+#' @param expr A filter expression. See below for examples.
+#'
+#' @return \code{AnnotationFilter} returns an
+#'     \code{\link{AnnotationFilter}} or an \code{\link{AnnotationFilterList}}.
+#' 
+#' @importFrom lazyeval f_eval
+#'
+#' @examples
+#' ## Convert a filter expression based on a gene ID to a GeneIdFilter
+#' gnf <- AnnotationFilter(~ gene_id == "BCL2")
+#' gnf
+#'
+#' ## Same conversion but for two gene IDs.
+#' gnf <- AnnotationFilter(~ gene_id %in% c("BCL2", "BCL2L11"))
+#' gnf
+#'
+#' ## Converting an expression that combines multiple filters. As a result we
+#' ## get an AnnotationFilterList containing the corresponding filters.
+#' ## Be aware that nesting of expressions/filters does not work.
+#' flt <- AnnotationFilter(~ gene_id %in% c("BCL2", "BCL2L11") &
+#'                         tx_biotype == "nonsense_mediated_decay" |
+#'                         seq_name == "Y")
+#' flt
+#' 
+#' @export
+AnnotationFilter <- function(expr) {
+    f_eval(expr, data = .LOG_OP_REG)
 }
