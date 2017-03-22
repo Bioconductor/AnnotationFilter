@@ -2,16 +2,20 @@
 % Please edit documentation in R/translate-utils.R
 \name{convertFilterExpression}
 \alias{convertFilterExpression}
+\alias{convertFilterExpressionQuoted}
 \title{Converting filter expressions into AnnotationFilters}
 \usage{
 convertFilterExpression(expr)
+
+convertFilterExpressionQuoted(expr)
 }
 \arguments{
 \item{expr}{an expression describing the filter rules to be applied. See
 examples below.}
 }
 \value{
-\code{convertFilterExpression} returns an
+\code{convertFilterExpression} and
+    \code{convertFilterExpressionQuoted} return an
     \code{\link{AnnotationFilter}} or an \code{\link{AnnotationFilterList}}.
 }
 \description{
@@ -21,6 +25,17 @@ examples below.}
     \code{\link{GeneIdFilter}} object) or an
     \code{\link{AnnotationFilterList}} if the expression contains multiple
     conditions.
+
+\code{convertFilterExpressionQuoted} takes a \emph{quoted}
+    filter expression (e.g. using \code{substitute}) and, as
+    \code{convertFilterExpression}, translates it into an
+    \code{\link{AnnotationFilter}} or \code{\link{AnnotationFilterList}}
+    object.
+}
+\details{
+The \code{convertFilterExpression} function is designed to be used
+    interactively, while the \code{convertFilterExpressionQuoted} is usually
+    being called by other functions.
 }
 \note{
 No nesting of filter expressions (with \code{(}) is supported yet.
@@ -41,4 +56,18 @@ flt <- convertFilterExpression(gene_id \%in\% c("BCL2", "BCL2L11") &
                                tx_biotype == "nonsense_mediated_decay" |
                                seq_name == "Y")
 flt
+
+## Define a simple function that calls the convertFilterExpressionQuoted
+## function
+testFun <- function(x)
+    convertFilterExpressionQuoted(substitute(x))
+
+## Now we can use this function to translate a filter expression.
+testFun(gene_id == 100)
+
+## Alternatively we can call convertFilterExpressionQuoted passing the
+## quoted expression
+filter_expr <- substitute(gene_id == 100)
+convertFilterExpressionQuoted(filter_expr)
+
 }

@@ -94,7 +94,8 @@
 #' @param expr an expression describing the filter rules to be applied. See
 #'     examples below.
 #'
-#' @return \code{convertFilterExpression} returns an
+#' @return \code{convertFilterExpression} and
+#'     \code{convertFilterExpressionQuoted} return an
 #'     \code{\link{AnnotationFilter}} or an \code{\link{AnnotationFilterList}}.
 #'
 #' @examples
@@ -118,5 +119,39 @@ convertFilterExpression <-
     function(expr)
 {
     x <- substitute(expr)
-    eval(x, envir = .LOG_OP_REG)
+    convertFilterExpressionQuoted(x)
+}
+
+#' @rdname translate-utils
+#'
+#' @description \code{convertFilterExpressionQuoted} takes a \emph{quoted}
+#'     filter expression (e.g. using \code{substitute}) and, as
+#'     \code{convertFilterExpression}, translates it into an
+#'     \code{\link{AnnotationFilter}} or \code{\link{AnnotationFilterList}}
+#'     object.
+#'
+#' @details The \code{convertFilterExpression} function is designed to be used
+#'     interactively, while the \code{convertFilterExpressionQuoted} is usually
+#'     being called by other functions.
+#'
+#' @examples
+#'
+#' ## Define a simple function that calls the convertFilterExpressionQuoted
+#' ## function
+#' testFun <- function(x)
+#'     convertFilterExpressionQuoted(substitute(x))
+#'
+#' ## Now we can use this function to translate a filter expression.
+#' testFun(gene_id == 100)
+#'
+#' ## Alternatively we can call convertFilterExpressionQuoted passing the
+#' ## quoted expression
+#' filter_expr <- substitute(gene_id == 100)
+#' convertFilterExpressionQuoted(filter_expr)
+#' 
+#' @export
+convertFilterExpressionQuoted <-
+    function(expr)
+{
+    eval(expr, envir = .LOG_OP_REG)
 }

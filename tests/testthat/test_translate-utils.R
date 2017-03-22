@@ -61,6 +61,17 @@ test_that("translation of combined expressions works", {
     expect_equal(res, cmp)
 })
 
+test_that("translation of quoted expression works", {
+    simpleFun <- function(x)
+        convertFilterExpressionQuoted(substitute(x))
+    expect_equal(simpleFun(gene_id == 4), convertFilterExpression(gene_id == 4))
+    filter_expr <- substitute(gene_id == 4)
+    expect_equal(convertFilterExpressionQuoted(filter_expr),
+                 convertFilterExpression(gene_id == 4))
+    expect_equal(convertFilterExpressionQuoted(quote(gene_id == 4)),
+                 convertFilterExpression(gene_id == 4))
+})
+
 ## This might be a test if we get the nesting working.
 ## test_that("translation of nested expressions works" {
 ##     res <- convertFilterExpression((exon_id == "EX1" & gene_id == "BCL2") |
