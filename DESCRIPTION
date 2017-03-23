@@ -1,6 +1,6 @@
 Package: AnnotationFilter
 Title: Facilities for Filtering Bioconductor Annotation Resources
-Version: 0.99.6
+Version: 0.99.7
 Authors@R: c(
     person("Martin", "Morgan", email = "martin.morgan@roswellpark.org",
         role = "aut"),
@@ -26,7 +26,7 @@ Suggests:
     knitr,
     testthat,
     RSQLite,
-    EnsDb.Hsapiens.v75
+    org.Hs.eg.db
 VignetteBuilder: knitr
 License: Artistic-2.0
 biocViews: Annotation, Infrastructure, Software

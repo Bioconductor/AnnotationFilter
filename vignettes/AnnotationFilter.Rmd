@@ -8,7 +8,7 @@ vignette: >
     %\VignetteEngine{knitr::rmarkdown}
     %\VignetteEncoding{UTF-8}
     %\VignettePackage{AnnotationFilter}
-    %\VignetteDepends{EnsDb.Hsapiens.v75,BiocStyle,RSQLite}
+    %\VignetteDepends{org.Hs.eg.db,BiocStyle,RSQLite}
 ---
 
 ```{r style, echo = FALSE, results = 'asis', message=FALSE}
@@ -156,7 +156,7 @@ nested expressions, such as `(symbol == "BCL2L11" & tx_biotype ==
 ## Define the filter query for the first pair of filters.
 afl1 <- AnnotationFilterList(SymbolFilter("BCL2L11"),
                              TxBiotypeFilter("nonsense_mediated_decay"))
-## Define how the second filter pair in ( brackets should be combined.
+## Define the second filter pair in ( brackets should be combined.
 afl2 <- AnnotationFilterList(SymbolFilter("BCL2"),
                              TxBiotypeFilter("protein_coding"))
 ## Now combine both with a logical OR
@@ -268,6 +268,11 @@ scenario in which `AnnotationFilter` becomes useful are SQL-based annotation
 resources. We will thus explore next how SQL resources could be filtered using
 `AnnotationFilter`.
 
+We use the SQLite database from the `r Biocpkg("org.Hs.eg.db")` package that
+provides a variety of annotations for all human genes. Using the packages'
+connection to the database we inspect first what database tables are available
+and then select one for our simple filtering example. 
+
 We use an `EnsDb` SQLite database used by the `r Biocpkg("ensembldb")` package
 and implement simple filter functions to extract specific data from one of its
 database tables. We thus load below the `EnsDb.Hsapiens.v75` package that
@@ -275,47 +280,49 @@ provides access to human gene, transcript, exon and protein annotations. Using
 its connection to the database we inspect first what database tables are
 available and then what *fields* (i.e. columns) the *gene* table has.
 
-```{r ensdb, message = FALSE}
+```{r orgDb, message = FALSE}
 ## Load the required packages
-library(EnsDb.Hsapiens.v75)
+library(org.Hs.eg.db)
 library(RSQLite)
-
-dbcon <- dbconn(EnsDb.Hsapiens.v75)
+## Get the database connection
+dbcon <- org.Hs.eg_dbconn()
 
 ## What tables do we have?
 dbListTables(dbcon)
-
-## What fields are there in the gene table?
-dbListFields(dbcon, "gene")
-
 ```
 
-Many, but not all, of the columns/fields corresponds to the default `field`
-value of `AnnotationFilter` classes, such as *gene_id* or *seq_name*. For those
-without a match we would have to re-map their field value to the respective
-column names in the database (e.g. we would want to access the *gene_seq_start*
-column for the `GeneStartFilter`). There are many possibilities to do this, one
-would be to implement a function to extract the field value specific for the
-database e.g. `ensDbField` that returns the default `field` value for
-`AnnotationFilter` objects which field matches the database column name and the
-actual name of the column in the database otherwise.
+`org.Hs.eg.db` provides many different tables, one for each identifier or
+annotation resource. We will use the *gene_info* table and determine which
+*fields* (i.e. columns) the table provides.
 
-We could now implement a simple `doExtractGene` function that retrieves data
-from the *gene* table and re-uses the `doFilter` function to extract specific
+```{r gene_info}
+## What fields are there in the gene_info table?
+dbListFields(dbcon, "gene_info")
+```
+
+The *gene_info* table provides the official gene symbol and the gene name. The
+column *symbol* matches the default `field` value of the `SymbolFilter`. For the
+`GenenameFilter` we would have to re-map its default field `"genename"` to the
+database column *gene_name*. There are many possibilities to do this, one would
+be to implement an own function to extract the field from the `AnnotationFilter`
+classes specific to the database. This function eventually renames the extracted
+field value to match the corresponding name of the database column name.
+
+We next implement a simple `doExtractGene` function that retrieves data from the
+*gene_info* table and re-uses the `doFilter` function to extract specific
 data. The parameter `x` is now the database connection object.
 
 ```{r doExtractSQL}
 
 doExtractGene <- function(x, filter) {
-    gene <- dbGetQuery(x, "select * from gene;")
+    gene <- dbGetQuery(x, "select * from gene_info")
     doExtract(gene, filter)
 }
 
-## Extract all genes on chromosome Y
-chrY <- doExtractGene(dbcon, SeqNameFilter("Y"))
+## Extract all entries for BCL2
+bcl2 <- doExtractGene(dbcon, SymbolFilter("BCL2"))
 
-nrow(chrY)
-
+bcl2
 ```
 
 This works, but is not really efficient, since the function first fetches the
@@ -365,21 +372,21 @@ to let the database server take care of the filtering.
 doExtractGene2 <- function(x, filter) {
     if (is(filter, "formula"))
         filter <- AnnotationFilter(filter)
-    query <- paste0("select * from gene where ", where(filter))
+    query <- paste0("select * from gene_info where ", where(filter))
     dbGetQuery(x, query)
 }
 
-chrY <- doExtractGene2(dbcon, ~ seq_name == "Y")
-head(chrY)
+bcl2 <- doExtractGene2(dbcon, ~ symbol == "BCL2")
+bcl2
 
 ```
 
 Below we compare the performance of both approaches.
 
 ```{r performance}
-system.time(doExtractGene(dbcon, ~ seq_name == "Y"))
+system.time(doExtractGene(dbcon, ~ symbol == "BCL2"))
 
-system.time(doExtractGene2(dbcon, ~ seq_name == "Y"))
+system.time(doExtractGene2(dbcon, ~ symbol == "BCL2"))
 
 ```
 
@@ -389,7 +396,6 @@ Be aware that the examples shown here are only for illustration purposes. In a
 real world situation additional factors, like combinations of filters, which
 database tables to join, which columns to be returned etc would have to be
 considered too.
-
 
 # Session information
 
