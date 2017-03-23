@@ -22,53 +22,113 @@ BiocStyle::markdown()
 
 # Introduction
 
-The `r Biocpkg("AnnotationFilter")` package provides filter classes and basic
-concepts for filtering of Bioconductor annotation resources.
+A large variety of annotation resources are available in Bioconductor. Accessing
+the full content of these databases or even of single tables is computationally
+expensive and in many instances not required, as users may want to extract only
+sub-sets of the data e.g. genomic coordinates of a single gene. Filtering
+annotation resources before data extraction has a major impact on performance
+and increases the usability of such genome-scale databases.
 
-## Filter classes
+The `r Biocpkg("AnnotationFilter")` package was thus developed to provide basic
+filter classes to enable a common filtering framework for Bioconductor
+annotation resources. `r Biocpkg("AnnotationFilter")` defines filter classes for
+some of the most commonly used features in annotation databases, such as
+*symbol* or *genename*. Each filter class is supposed to work on a single
+database table column and to facilitate filtering on the provided values. Such
+filter classes enable the user to build complex queries to retrieve specific
+annotations without the need to know column or table names or the layout of
+the underlying databases. While initially being developed to be used in the `r
+Biocpkg("Organism.dplyr")` and `r Biocpkg("ensembldb")` packages the filter
+classes and the related filtering concept can be easily added in other
+annotation packages too.
 
-The filter classes provided by `AnnotationFilter` extend the `AnnotationFilter`
-class and allow to define the conditions for the filtering. Each field or
-feature is represented by its own filter class and each filter is defined by a
-`value` (the value to be used in the filter) and a `condition`
-(e.g. `"=="`). The `SymbolFilter` class for example is supposed to filter data
-based on gene symbols (used as the filter's values). Filter classes are grouped
-into character-based filters (such as the `SymbolFilter`) and integer-based
-filters (such as the `GeneSeqStartFilter`). The character-based filters can
-take a single or multiple `character` values and support conditions `"=="`,
-`"!="`, `"startsWith"` and `"endsWith"`. Integer filters can only take a single
-value and support, in addition to `"=="` and "`"!="`, also the conditions `">"`,
-`">="`, `"<"` and `"<="`. The name of a filter always matches its `field` (which
-in most cases will represent the name of the database column containing the
-corresponding features), with *snake case* replaced by *camel case* followed by
-*Filter*. The field for the `SymbolFilter` for example is `"symbol"` and the
-field for the `GeneSeqStartFilter` `"gene_seq_start"`. Filter are supposed to
-be *read only* and hence do not provide setter methods for their slots.
 
-In the example below we define a `SymbolFilter` to retrieve all entries from an
-annotation resource for a gene with the symbol *BCL2*.
+# Filter classes
 
-```{r simple-symbol-filt}
+All filter classes extend the basic `AnnotationFilter` class and take one or more
+*values* and a *condition* to allow filtering on a single database table
+column. Based on the type of the input value, filter classes are divided into:
+
+- `CharacterFilter`: takes a `character` value of length >= 1 and supports
+  conditions `==`, `!=`, `startsWith` and `endsWith`. An example would be a
+  `GeneIdFilter` that allows to filter on gene IDs.
+
+- `IntegerFilter`: takes a single `integer` as input and supports the conditions
+  `==`, `!=`, `>`, `<`, `>=` and `<=`. An example would be a `GeneStartFilter`
+  that filters results on the (chromosomal) start coordinates of genes.
+
+- `GRangesFilter`: is a special case of a filter, as it takes a `GRanges` as
+  `value` and performs the filtering on a combination of columns (i.e. start
+  coordinate, end coordinate and sequence name and strand). To be consistent
+  with the `findOverlaps` method from the `r Biocpkg("IRanges")` package, the
+  constructor of the `GRangesFilter` filter takes a `type` argument to define
+  its condition. Supported values are `"any"` (the default) that retrieves all
+  entries overlapping the `GRanges`, `"start"` and `"end"` matching all features with the same
+  start respectively end coordinate, `"within"` matches all features that are
+  *within* the range defined by the `GRanges` and `"equal"` returning features
+  that are equal to the `GRanges`.
+
+The names of the filter classes are intuitive, the first part corresponding to
+the database column name, any character after a `_` being replaced with a
+capital letter, followed by the key word `Filter`. The name of a filter for a
+database table column `gene_id` is thus called `GeneIdFilter`. The default
+database column for a filter is stored in its `field` slot (accessible *via* the
+`field` function).
+
+The `supportedFilters` method can be used to get an overview of all available
+filter objects defined in `AnnotationFilter`.
+
+```{r supportedFilters}
+library(AnnotationFilter)
+supportedFilters()
+```
+
+The `AnnotationFilter` package provides only the filter classes but not the
+functionality to apply the filtering. Since this is dependent on the underlying
+data structure and layout it has to be implemented in each package providing
+access to annotation resources.
+
+
+# Usage
+
+Filters are created *via* their dedicated constructor functions such as the
+`GeneIdFilter` function for the `GeneIdFilter` class. Because of this simple
+and cheap creation, filter classes are thought to be *read-only* and thus don't
+provide *setter* methods to change their slot values. In addition to the
+constructor functions, `AnnotationFilter` provides the functionality to
+*translate* query expressions into filter classes (see further below for an
+example).
+
+Below we create a `SymbolFilter` that could be used to filter an annotation
+resource to retrieve all entries associated with the specified symbol value(s).
+
+```{r symbol-filter}
 library(AnnotationFilter)
 
 smbl <- SymbolFilter("BCL2")
 smbl
 ```
 
-If we want to retrieve all entries a gene symbol starting with *BCL2* (such as
-*BCL2*, *BCL2L11* etc) we can use a `condition = "startsWith"`.
+Such a filter is supposed to be used to retrieve all entries associated to
+features with a value in a *symbol* database table column matching the filter's
+value `"BCL2"`.
+
+Using the `"startsWith"` condition we could define a filter to retrieve all
+entries for genes with a symbol starting with the specified value (e.g. `"BCL2"`
+and `"BCL2L11"` for the example below.
 
 ```{r symbol-startsWith}
 smbl <- SymbolFilter("BCL2", condition = "startsWith")
 smbl
 ```
 
-In addition to the constructor functions, `AnnotationFilter` instances can be
-generated also by *translating* logical expressions. In the example below we
-create a `SymbolFilter` by converting a logical expression.
+In addition to the constructor functions, `AnnotationFilter` provides a
+functionality to create filter instances in a more natural and intuitive way by
+*translating* filter expressions (written as a *formula*, i.e. starting with a
+`~`).
 
 ```{r convert-expression}
-smbl <- convertFilterExpression(symbol == "BCL2")
+smbl <- AnnotationFilter(~ symbol == "BCL2")
 smbl
 ```
 
@@ -76,14 +136,17 @@ Also combinations of filters are supported. Below we create a
 `AnnotationFilterList` containing two filter objects.
 
 ```{r convert-multi-expression}
-flt <- convertFilterExpression(symbol == "BCL2" &
-                               tx_biotype == "protein_coding")
+flt <- AnnotationFilter(~ symbol == "BCL2" &
+                            tx_biotype == "protein_coding")
 flt
 ```
 
-Note however that nesting of expressions, such as `(symbol == "BCL2L11" &
-tx_biotype == "nonsense_mediated_decay") | (symbol == "BCL2" &
-tx_biotype == "protein_coding")` is  not possible.
+Note however that translation of nested expressions, such as `(symbol ==
+"BCL2L11" & tx_biotype == "nonsense_mediated_decay") | (symbol == "BCL2" &
+tx_biotype == "protein_coding")` is (currently) not possible.
+
+Such queries can however be build by nesting `AnnotationFilterList` classes.
+
 
 
 # Using `AnnotationFilter` in other packages
