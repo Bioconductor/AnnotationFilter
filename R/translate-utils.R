@@ -72,104 +72,7 @@
 .LOG_OP_REG$`&` <- .combine_op("&")
 .LOG_OP_REG$`|` <- .combine_op("|")
 
-## .LOG_OP_REG <- local({
-##     filtReg <- new.env() # parent=emptyenv() breaks look-up
-
-##     ## Assign conditions.
-##     filtReg$`==` <- .binary_op("==")
-##     filtReg$`%in%` <- .binary_op("==")
-##     filtReg$`!=` <- .binary_op("!=")
-##     filtReg$`>` <- .binary_op(">")
-##     filtReg$`<` <- .binary_op("<")
-##     filtReg$`>=` <- .binary_op(">=")
-##     filtReg$`<=` <- .binary_op("<=")
-
-##     ## combine filters
-##     filtReg$`&` <- .combine_op("&")
-##     filtReg$`|` <- .combine_op("|")
-
-##     filtReg
-## })
-
-#' @rdname translate-utils
-#'
-#' @title Converting filter expressions into AnnotationFilters
-#'
-#' @description \code{convertFilterExpression} \emph{translates} a logical
-#'     expression such as \code{gene_id == "BCL2"} into a filter object
-#'     extending the \code{\link{AnnotationFilter}} class (in the example a
-#'     \code{\link{GeneIdFilter}} object) or an
-#'     \code{\link{AnnotationFilterList}} if the expression contains multiple
-#'     conditions.
-#'
-#' @note No nesting of filter expressions (with \code{(}) is supported yet.
-#'
-#' @param expr an expression describing the filter rules to be applied. See
-#'     examples below.
-#'
-#' @return \code{convertFilterExpression} and
-#'     \code{convertFilterExpressionQuoted} return an
-#'     \code{\link{AnnotationFilter}} or an \code{\link{AnnotationFilterList}}.
-#'
-#' @examples
-#' ## Convert a filter expression based on a gene ID to a GeneIdFilter
-#' gnf <- convertFilterExpression(gene_id == "BCL2")
-#' gnf
-#'
-#' ## Same conversion but for two gene IDs.
-#' gnf <- convertFilterExpression(gene_id %in% c("BCL2", "BCL2L11"))
-#' gnf
-#'
-#' ## Converting an expression that combines multiple filters. As a result we
-#' ## get an AnnotationFilterList containing the corresponding filters.
-#' ## Be aware that nesting of expressions/filters does not work.
-#' flt <- convertFilterExpression(gene_id %in% c("BCL2", "BCL2L11") &
-#'                                tx_biotype == "nonsense_mediated_decay" |
-#'                                seq_name == "Y")
-#' flt
-#' @export
-convertFilterExpression <-
-    function(expr)
-{
-    x <- substitute(expr)
-    convertFilterExpressionQuoted(x)
-}
-
-#' @rdname translate-utils
-#'
-#' @description \code{convertFilterExpressionQuoted} takes a \emph{quoted}
-#'     filter expression (e.g. using \code{substitute}) and, as
-#'     \code{convertFilterExpression}, translates it into an
-#'     \code{\link{AnnotationFilter}} or \code{\link{AnnotationFilterList}}
-#'     object.
-#'
-#' @details The \code{convertFilterExpression} function is designed to be used
-#'     interactively, while the \code{convertFilterExpressionQuoted} is usually
-#'     being called by other functions.
-#'
-#' @examples
-#'
-#' ## Define a simple function that calls the convertFilterExpressionQuoted
-#' ## function
-#' testFun <- function(x)
-#'     convertFilterExpressionQuoted(substitute(x))
-#'
-#' ## Now we can use this function to translate a filter expression.
-#' testFun(gene_id == 100)
-#'
-#' ## Alternatively we can call convertFilterExpressionQuoted passing the
-#' ## quoted expression
-#' filter_expr <- substitute(gene_id == 100)
-#' convertFilterExpressionQuoted(filter_expr)
-#'
-#' @export
-convertFilterExpressionQuoted <-
-    function(expr)
-{
-    eval(expr, .LOG_OP_REG)
-}
-
-#' @rdname translate-utils
+#' @rdname AnnotationFilter
 #'
 #' @description \code{AnnotationFilter} \emph{translates} a filter
 #'     expression such as \code{~ gene_id == "BCL2"} into a filter object
@@ -178,10 +81,15 @@ convertFilterExpressionQuoted <-
 #'     \code{\link{AnnotationFilterList}} if the expression contains multiple
 #'     conditions (see examples below).
 #'
-#' @details Filter expressions have to be written as formulas, i.e. starting
-#'     with a \code{~}.
+#' @details Filter expressions for the \code{AnnotationFilter} class have to be
+#'     written as formulas, i.e. starting with a \code{~}.
+#'
+#' @note Translation of nested filter expressions using the
+#'     \code{AnnotationFilter} function is not yet supported.
 #' 
-#' @param expr A filter expression. See below for examples.
+#' @param expr A filter expression, written as a \code{formula}, to be
+#'     converted to an \code{AnnotationFilter} or \code{AnnotationFilterList}
+#'     class. See below for examples.
 #'
 #' @return \code{AnnotationFilter} returns an
 #'     \code{\link{AnnotationFilter}} or an \code{\link{AnnotationFilterList}}.
@@ -189,6 +97,7 @@ convertFilterExpressionQuoted <-
 #' @importFrom lazyeval f_eval
 #'
 #' @examples
+#' 
 #' ## Convert a filter expression based on a gene ID to a GeneIdFilter
 #' gnf <- AnnotationFilter(~ gene_id == "BCL2")
 #' gnf

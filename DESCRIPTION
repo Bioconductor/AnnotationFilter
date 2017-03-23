@@ -19,11 +19,14 @@ Depends:
 Imports:
     utils,
     methods,
-    GenomicRanges
+    GenomicRanges,
+    lazyeval
 Suggests:
     BiocStyle,
     knitr,
-    testthat
+    testthat,
+    RSQLite,
+    EnsDb.Hsapiens.v75
 VignetteBuilder: knitr
 License: Artistic-2.0
 biocViews: Annotation, Infrastructure, Software
