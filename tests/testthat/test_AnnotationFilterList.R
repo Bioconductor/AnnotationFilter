@@ -32,3 +32,21 @@ test_that("AnnotationFilterList() works", {
     expect_equal(logOp(fL2), c("&"))
     expect_equal(logOp(fL2[[2]]), c("|"))
 })
+
+test_that("empty elements in AnnotationFilterList", {
+    ## empty elements should be removed from the AnnotationFilterList.
+    empty_afl <- AnnotationFilterList()
+    afl <- AnnotationFilterList(empty_afl)
+    expect_true(length(afl) == 0)
+    afl <- AnnotationFilterList(GeneIdFilter(4), empty_afl)
+    expect_true(length(afl) == 1)
+    afl <- AnnotationFilterList(GeneIdFilter(4),
+                                AnnotationFilter(~ gene_id == 3 | seq_name == 4),
+                                empty_afl)
+    expect_true(length(afl) == 2)
+    ## Check validate.
+    afl@.Data <- c(afl@.Data, list(empty_afl))
+    ## Fix also the logOp.
+    afl@logOp <- c(afl@logOp, "|")
+    expect_error(validObject(afl))
+})

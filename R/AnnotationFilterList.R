@@ -16,6 +16,10 @@
 #'     \code{AnnotationFilterList} extends \code{list}, individual
 #'     elements can thus be accessed with \code{[[}.
 #'
+#' @note The \code{AnnotationFilterList} does not support containing empty
+#'     elements, hence all elements of \code{length == 0} are removed in
+#'     the constructor function.
+#'
 #' @exportClass AnnotationFilterList
 NULL
 
@@ -48,6 +52,11 @@ setValidity("AnnotationFilterList",
                 txt, "only 'AnnotationFilter' or 'AnnotationFilterList' allowed"
             )
         }
+        ## Check that all elements are non-empty (issue #17). Doing this
+        ## separately from the check above to ensure we get a different error
+        ## message.
+        if (!all(lengths(filters) > 0))
+            txt <- c(txt, "Lengths of all elements have to be > 0")
         ## Check that logOp has length object -1
         if (length(logOp) != length(filters) - 1)
             txt <- c(txt, "length of 'logOp' has to be length of the object -1")
@@ -112,6 +121,8 @@ AnnotationFilterList <-
     function(..., logOp = character())
 {
     filters <- list(...)
+    ## Remove empty elements (issue #17)
+    filters <- filters[lengths(filters) > 0]
     ## By default we're assuming & between elements.
     if (length(filters) > 1 & length(logOp) == 0)
         logOp <- rep("&", (length(filters) - 1))
@@ -158,3 +169,4 @@ setMethod("show", "AnnotationFilterList",
         show(object[[i]])
     }
 })
+
