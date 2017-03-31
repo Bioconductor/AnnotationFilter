@@ -1,0 +1,7 @@
+CHANGES IN VERSION 0.99.5
+--------------------------
+
+NEW FEATURES
+
+    o Add convertFilterExpressionQuoted function.
+    o Add field method.
