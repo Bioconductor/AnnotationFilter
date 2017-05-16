@@ -79,8 +79,8 @@
 #'     used in the filter. For \code{IntegerFilter}, one of
 #'     \code{"=="}, \code{"!="}, \code{">"}, \code{"<"}, \code{">="}
 #'     or \code{"<="}. For \code{CharacterFilter}, one of \code{"=="},
-#'     \code{"!="}, \code{"startsWith"} or \code{"endsWith"}. Default
-#'     condition is \code{"=="}.
+#'     \code{"!="}, \code{"startsWith"}, \code{"endsWith"} or \code{"contains"}.
+#'     Default condition is \code{"=="}.
 #'
 #' @return The constructor function return an object extending
 #'     \code{AnnotationFilter}. For the return value of the other methods see
@@ -92,7 +92,7 @@ NULL
 
 .CONDITION <- list(
     IntegerFilter = c("==", "!=", ">", "<", ">=", "<="),
-    CharacterFilter =  c("==", "!=", "startsWith", "endsWith"),
+    CharacterFilter =  c("==", "!=", "startsWith", "endsWith", "contains"),
     GRangesFilter = c("any", "start", "end", "within", "equal")
 )
 
@@ -152,7 +152,8 @@ setValidity("AnnotationFilter", function(object) {
         txt <- c(txt, "'condition' can not be NA")
     test0 <- test_len && test_NA
 
-    test1 <- condition  %in% c("startsWith", "endsWith", ">", "<", ">=", "<=")
+    test1 <- condition  %in% c("startsWith", "endsWith", "contains", ">",
+                               "<", ">=", "<=")
     if (test0 && test1 && length(value) > 1L)
         txt <- c(txt, paste0("'", condition, "' requires length 1 'value'"))
 
