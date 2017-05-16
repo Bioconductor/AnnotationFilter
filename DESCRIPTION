@@ -1,26 +1,40 @@
 Package: AnnotationFilter
 Title: Facilities for Filtering Bioconductor Annotation Resources
 Version: 1.1.0
-Authors@R: c( person("Martin", "Morgan", email =
-        "martin.morgan@roswellpark.org", role = "aut"),
-        person("Johannes", "Rainer", email =
-        "johannes.rainer@eurac.edu", role = "aut"),
-        person("Bioconductor", "Maintainer",
-        email="maintainer@bioconductor.org", role = "cre"))
+Authors@R: c(
+    person("Martin", "Morgan", email = "martin.morgan@roswellpark.org",
+        role = "aut"),
+    person("Johannes", "Rainer", email = "johannes.rainer@eurac.edu",
+        role = "aut"),
+    person("Bioconductor", "Maintainer", email="maintainer@bioconductor.org",
+        role = "cre"))
 URL: https://github.com/Bioconductor/AnnotationFilter
 BugReports: https://github.com/Bioconductor/AnnotationFilter/issues
 Description: This package provides class and other infrastructure to
-        implement filters for manipulating Bioconductor annotation
-        resources. The filters will be used by ensembldb,
-        Organism.dplyr, and other packages.
-Depends: R (>= 3.4.0)
-Imports: utils, methods, GenomicRanges, lazyeval
-Suggests: BiocStyle, knitr, testthat, RSQLite, org.Hs.eg.db
+    implement filters for manipulating Bioconductor annotation
+    resources. The filters will be used by ensembldb, Organism.dplyr,
+    and other packages.
+Depends:
+    R (>= 3.4.0)
+Imports:
+    utils,
+    methods,
+    GenomicRanges,
+    lazyeval
+Suggests:
+    BiocStyle,
+    knitr,
+    testthat,
+    RSQLite,
+    org.Hs.eg.db
 VignetteBuilder: knitr
 License: Artistic-2.0
 biocViews: Annotation, Infrastructure, Software
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
-Collate: 'AllGenerics.R' 'AnnotationFilter.R' 'AnnotationFilterList.R'
-        'translate-utils.R'
+Collate:
+    'AllGenerics.R'
+    'AnnotationFilter.R'
+    'AnnotationFilterList.R'
+    'translate-utils.R'
