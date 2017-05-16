@@ -133,8 +133,8 @@ class. See below for examples.}
 used in the filter. For \code{IntegerFilter}, one of
 \code{"=="}, \code{"!="}, \code{">"}, \code{"<"}, \code{">="}
 or \code{"<="}. For \code{CharacterFilter}, one of \code{"=="},
-\code{"!="}, \code{"startsWith"} or \code{"endsWith"}. Default
-condition is \code{"=="}.}
+\code{"!="}, \code{"startsWith"}, \code{"endsWith"} or \code{"contains"}.
+Default condition is \code{"=="}.}
 }
 \value{
 The constructor function return an object extending

@@ -51,6 +51,11 @@ The \code{AnnotationFilterList} allows to combine
     \code{AnnotationFilter} objects. Use \code{[[} to access
     individual filters.
 }
+\note{
+The \code{AnnotationFilterList} does not support containing empty
+    elements, hence all elements of \code{length == 0} are removed in
+    the constructor function.
+}
 \examples{
 ## Create some AnnotationFilters
 gf <- GenenameFilter(c("BCL2", "BCL2L11"))
