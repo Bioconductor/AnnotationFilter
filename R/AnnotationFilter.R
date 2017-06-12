@@ -31,7 +31,10 @@
 #' Filter instances created using the constructor functions (e.g.
 #' \code{GeneIdFilter}).
 #'
-#' \code{supportedFilters()} lists all defined filters. Packages using
+#' \code{supportedFilters()} lists all defined filters. To get an overview of
+#' the supported filters and their corresponding fields, you can run
+#' \code{supportedFiltersAndFields()}.
+#' Packages using
 #' \code{AnnotationFilter} should implement the \code{supportedFilters} for
 #' their annotation resource object (e.g. for \code{object = "EnsDb"} in the
 #' \code{ensembldb} package) to list all supported filters for the specific
@@ -373,6 +376,20 @@ NULL
     paste0(class, if (length(class)) "Filter" else character(0))
 }
 
+.classToField <- function(class) {
+  class <- sub("Filter$", "", class)
+  class <- gsub("([[:upper:]])", "_\\1", class, perl=TRUE)
+  class <- sub("^_","", class)
+  class <- tolower(class)
+  class
+}
+
+.supportedFiltersAndFields <- function() {
+  filters <- supportedFilters()
+  df <- data.frame(filter=filters, field=.classToField(filters))
+  df
+}
+
 .filterFactory <- function(field, class) {
     force(field); force(class)          # watch for lazy evaluation
     as.value <-
@@ -424,4 +441,7 @@ local({
 #' @export
 setMethod("supportedFilters", "missing", function(object) {
     .supportedFilters()
+})
+setMethod("supportedFiltersAndFields", "missing", function(object) {
+    .supportedFiltersAndFields()
 })
