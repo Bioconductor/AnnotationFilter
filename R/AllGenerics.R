@@ -7,6 +7,3 @@ setGeneric("value", function(object, ...) standardGeneric("value"))
 
 setGeneric("supportedFilters", function(object, ...)
     standardGeneric("supportedFilters"))
-
-setGeneric("supportedFiltersAndFields", function(object, ...)
-  standardGeneric("supportedFiltersAndFields"))
