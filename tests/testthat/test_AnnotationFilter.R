@@ -1,10 +1,11 @@
 context("AnnotationFilter")
 
 test_that("supportedFilters() works", {
-    expect_true(inherits(supportedFilters(), "character"))
+    expect_true(inherits(supportedFilters(), "data.frame"))
     expect_identical(
-        length(supportedFilters()),
-        length(unlist(AnnotationFilter:::.FIELD, use.names=FALSE)) + 1L
+        nrow(supportedFilters()),
+        length(unlist(AnnotationFilter:::.FIELD, use.names=FALSE)) +
+            length(AnnotationFilter:::.FILTERS_WO_FIELD)
     )
 })
 

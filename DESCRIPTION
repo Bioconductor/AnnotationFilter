@@ -1,11 +1,12 @@
 Package: AnnotationFilter
 Title: Facilities for Filtering Bioconductor Annotation Resources
-Version: 1.1.1
+Version: 1.1.2
 Authors@R: c(
     person("Martin", "Morgan", email = "martin.morgan@roswellpark.org",
         role = "aut"),
     person("Johannes", "Rainer", email = "johannes.rainer@eurac.edu",
         role = "aut"),
+    person("Joachim", "Bargsten", email = "jw@bargsten.org", role = "ctb"),
     person("Bioconductor", "Maintainer", email="maintainer@bioconductor.org",
         role = "cre"))
 URL: https://github.com/Bioconductor/AnnotationFilter

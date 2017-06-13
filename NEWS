@@ -1,3 +1,11 @@
+CHANGES IN VERSION 1.1.2
+------------------------
+
+NEW FEATURES
+
+    o supportFilters returns a data.frame with filter class name and field.
+
+
 CHANGES IN VERSION 0.99.5
 --------------------------
 
