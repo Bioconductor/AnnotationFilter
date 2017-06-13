@@ -31,11 +31,12 @@
 #' Filter instances created using the constructor functions (e.g.
 #' \code{GeneIdFilter}).
 #'
-#' \code{supportedFilters()} lists all defined filters. Packages using
-#' \code{AnnotationFilter} should implement the \code{supportedFilters} for
-#' their annotation resource object (e.g. for \code{object = "EnsDb"} in the
-#' \code{ensembldb} package) to list all supported filters for the specific
-#' resource.
+#' \code{supportedFilters()} lists all defined filters. It returns a two column
+#' \code{data.frame} with the filter class name and its default field.
+#' Packages using \code{AnnotationFilter} should implement the
+#' \code{supportedFilters} for their annotation resource object (e.g. for
+#' \code{object = "EnsDb"} in the \code{ensembldb} package) to list all
+#' supported filters for the specific resource.
 #'
 #' @details
 #'
@@ -413,8 +414,16 @@ local({
 ## Utilities - supportedFilters
 ##
 
+.FILTERS_WO_FIELD <- c("GRangesFilter")
+
 .supportedFilters <- function() {
-    sort(c(.fieldToClass(unlist(.FIELD, use.names=FALSE)), "GRangesFilter"))
+    fields <- unlist(.FIELD, use.names=FALSE)
+    filters <- .fieldToClass(fields)
+    d <- data.frame(
+      filter=c(filters, .FILTERS_WO_FIELD),
+      field=c(fields, rep(NA, length(.FILTERS_WO_FIELD)))
+    )
+    d[order(d$filter),]
 }
 
 #' @rdname AnnotationFilter

@@ -79,7 +79,12 @@
 #'     extending the \code{\link{AnnotationFilter}} class (in the example a
 #'     \code{\link{GeneIdFilter}} object) or an
 #'     \code{\link{AnnotationFilterList}} if the expression contains multiple
-#'     conditions (see examples below).
+#'     conditions (see examples below). Filter expressions have to be written
+#'     in the form \code{~ <field> <condition> <value>}, with \code{<field>}
+#'     being the default field of the filter class (use the
+#'     \code{supportedFilter} function to list all fields and filter classes),
+#'     \code{<condition>} the logical expression and \code{<value>} the value
+#'     for the filter.
 #'
 #' @details Filter expressions for the \code{AnnotationFilter} class have to be
 #'     written as formulas, i.e. starting with a \code{~}.
