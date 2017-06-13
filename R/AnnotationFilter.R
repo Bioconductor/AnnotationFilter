@@ -413,8 +413,16 @@ local({
 ## Utilities - supportedFilters
 ##
 
+.FILTERS_WO_FIELD <- c("GRangesFilter")
+
 .supportedFilters <- function() {
-    sort(c(.fieldToClass(unlist(.FIELD, use.names=FALSE)), "GRangesFilter"))
+    fields <- unlist(.FIELD, use.names=FALSE)
+    filters <- .fieldToClass(fields)
+    d <- data.frame(
+      filter=c(filters, .FILTERS_WO_FIELD),
+      field=c(fields, rep(NA, length(.FILTERS_WO_FIELD)))
+    )
+    d[order(d$filter),]
 }
 
 #' @rdname AnnotationFilter
