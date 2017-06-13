@@ -31,11 +31,12 @@
 #' Filter instances created using the constructor functions (e.g.
 #' \code{GeneIdFilter}).
 #'
-#' \code{supportedFilters()} lists all defined filters. Packages using
-#' \code{AnnotationFilter} should implement the \code{supportedFilters} for
-#' their annotation resource object (e.g. for \code{object = "EnsDb"} in the
-#' \code{ensembldb} package) to list all supported filters for the specific
-#' resource.
+#' \code{supportedFilters()} lists all defined filters. It returns a two column
+#' \code{data.frame} with the filter class name and its default field.
+#' Packages using \code{AnnotationFilter} should implement the
+#' \code{supportedFilters} for their annotation resource object (e.g. for
+#' \code{object = "EnsDb"} in the \code{ensembldb} package) to list all
+#' supported filters for the specific resource.
 #'
 #' @details
 #'
