@@ -153,11 +153,12 @@ table column using the provided values and the defined condition.
 Filter instances created using the constructor functions (e.g.
 \code{GeneIdFilter}).
 
-\code{supportedFilters()} lists all defined filters. Packages using
-\code{AnnotationFilter} should implement the \code{supportedFilters} for
-their annotation resource object (e.g. for \code{object = "EnsDb"} in the
-\code{ensembldb} package) to list all supported filters for the specific
-resource.
+\code{supportedFilters()} lists all defined filters. It returns a two column
+\code{data.frame} with the filter class name and its default field.
+Packages using \code{AnnotationFilter} should implement the
+\code{supportedFilters} for their annotation resource object (e.g. for
+\code{object = "EnsDb"} in the \code{ensembldb} package) to list all
+supported filters for the specific resource.
 
 \code{condition()} get the \code{condition} value for
     the filter \code{object}.
@@ -176,7 +177,12 @@ resource.
     extending the \code{\link{AnnotationFilter}} class (in the example a
     \code{\link{GeneIdFilter}} object) or an
     \code{\link{AnnotationFilterList}} if the expression contains multiple
-    conditions (see examples below).
+    conditions (see examples below). Filter expressions have to be written
+    in the form \code{~ <field> <condition> <value>}, with \code{<field>}
+    being the default field of the filter class (use the
+    \code{supportedFilter} function to list all fields and filter classes),
+    \code{<condition>} the logical expression and \code{<value>} the value
+    for the filter.
 }
 \details{
 By default filters are only available for tables containing the

@@ -40,12 +40,12 @@
         ## Avoid implicit nesting of AnnotationFilterList - should be done
         ## eventually
         if (is(e1, "AnnotationFilterList")) {
-            sep <- c(.logOp(e1), sep)
+            sep <- c(logicOp(e1), sep)
             e1 <- .aflvalue(e1)
         } else
             e1 <- list(e1)
         if (is(e2, "AnnotationFilterList")) {
-            sep <- c(.logOp(e2), sep)
+            sep <- c(logicOp(e2), sep)
             e2 <- .aflvalue(e2)
         } else
             e2 <- list(e2)
