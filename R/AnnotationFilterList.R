@@ -39,7 +39,7 @@ setValidity("AnnotationFilterList",
     logOp <- .logOp(object)
     if (length(filters) == 0 && length(logOp)) {
         txt <- c(
-            txt, "'logOp' can not have length > 0 if the object is empty"
+            txt, "'logicOp' can not have length > 0 if the object is empty"
         )
     } else if (length(filters) != 0) {
         ## Note: we allow length of filters being 1, but then logOp has
@@ -59,10 +59,10 @@ setValidity("AnnotationFilterList",
             txt <- c(txt, "Lengths of all elements have to be > 0")
         ## Check that logOp has length object -1
         if (length(logOp) != length(filters) - 1)
-            txt <- c(txt, "length of 'logOp' has to be length of the object -1")
+            txt <- c(txt, "length of 'logicOp' has to be length of the object -1")
         ## Check content of logOp.
         if (!all(logOp %in% .LOG_OPS))
-            txt <- c(txt, "'logOp' can only contain '&' and '|'")
+            txt <- c(txt, "'logicOp' can only contain '&' and '|'")
     }
 
     if (length(txt)) txt else TRUE
@@ -77,8 +77,8 @@ setValidity("AnnotationFilterList",
 #'     mixture of \code{AnnotationFilter} and
 #'     \code{AnnotationFilterList} objects.
 #'
-#' @param logOp \code{character} of length being equal to the numner
-#'     of submitted \code{AnnotationFilter} objects -1. Each value
+#' @param logicOp \code{character} of length equal to the number
+#'     of submitted \code{AnnotationFilter} objects - 1. Each value
 #'     representing the logical operation to combine consecutive
 #'     filters, i.e. the first element being the logical operation to
 #'     combine the first and second \code{AnnotationFilter}, the
@@ -86,6 +86,8 @@ setValidity("AnnotationFilterList",
 #'     second and third \code{AnnotationFilter} and so on. Allowed
 #'     values are \code{"&"} and \code{"|"}. The function assumes a
 #'     logical \emph{and} between all elements by default.
+#'
+#' @param logOp Deprecated; use \code{logicOp=}.
 #'
 #' @seealso \code{\link{supportedFilters}} for available
 #'     \code{\link{AnnotationFilter}} objects
@@ -113,20 +115,24 @@ setValidity("AnnotationFilterList",
 #' ## also found by the previous AnnotationFilterList and returns also all
 #' ## features on chromosome Y.
 #' afl <- AnnotationFilterList(gf, tbtf, SeqNameFilter("Y"),
-#'                             logOp = c("&", "|"))
+#'                             logicOp = c("&", "|"))
 #' afl
 #'
 #' @export
 AnnotationFilterList <-
-    function(..., logOp = character())
+    function(..., logicOp = character(), logOp = character())
 {
+    if (!missing(logOp) && missing(logicOp)) {
+        logicOp <- logOp
+        .Deprecated(msg = "'logOp' deprecated, use 'logicOp'")
+    }
     filters <- list(...)
     ## Remove empty elements (issue #17)
     filters <- filters[lengths(filters) > 0]
     ## By default we're assuming & between elements.
-    if (length(filters) > 1 & length(logOp) == 0)
-        logOp <- rep("&", (length(filters) - 1))
-    .AnnotationFilterList(filters, logOp = logOp)
+    if (length(filters) > 1 & length(logicOp) == 0)
+        logicOp <- rep("&", (length(filters) - 1))
+    .AnnotationFilterList(filters, logOp = logicOp)
 }
 
 .logOp <- function(object) object@logOp
@@ -139,12 +145,24 @@ AnnotationFilterList <-
 #'     \code{AnnotationFilter} objects. Use \code{[[} to access
 #'     individual filters.
 #'
-#' @return \code{value} returns a \code{list} with \code{AnnotationFilter}
+#' @return \code{value()} returns a \code{list} with \code{AnnotationFilter}
 #'     objects.
 #' 
 #' @export
 setMethod("value", "AnnotationFilterList", .aflvalue)
 
+#' @rdname AnnotationFilterList
+#'
+#' @aliases logicOp
+#'
+#' @description \code{logicOp()} gets the logical operators separating
+#'     successive \code{AnnotationFilter}.
+#'
+#' @return \code{logicOp()} returns a \code{character()} vector of
+#'     \dQuote{&} or \dQuote{|} symbols.
+#'
+#' @export logicOp
+setMethod("logicOp", "AnnotationFilterList", .logOp)
 
 #' @rdname AnnotationFilterList
 #'
@@ -155,18 +173,18 @@ setMethod("value", "AnnotationFilterList", .aflvalue)
 setMethod("show", "AnnotationFilterList",
     function(object)
 {
-    cat("class:", class(object),
-        "\nlength:", length(object)
+    cat(
+        "class: ", class(object), "\n",
+        "length: ", length(object), "\n",
+        sep = ""
     )
-
-    if (length(object) == 0L)
-        return()
-
-    cat("\nfilters:\n\n")
-    show(object[[1L]])
-    for (i in tail(seq_along(object), -1L)) {
-        cat("\n", .logOp(object)[i - 1L], "\n\n")
-        show(object[[i]])
+    if (length(object)) {
+        cat("filters:\n\n")
+        show(object[[1]])
+        for (i in tail(seq_along(object), -1L)) {
+            cat("\n", logicOp(object)[i - 1L], "\n\n")
+            show(object[[i]])
+        }
     }
 })
 
