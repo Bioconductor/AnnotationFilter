@@ -134,9 +134,9 @@ smbl
 
 Individual `AnnotationFilter` objects can be combined in an
 `AnnotationFilterList`. This class extends `list` and provides an additional
-`logOp` slot that defines how its individual filters are supposed to be
-combined. The length of `logOp` has to be 1 less than the number of filter
-objects. Each element in `logOp` defines how two consecutive filters should
+`logicOp()` that defines how its individual filters are supposed to be
+combined. The length of `logicOp()` has to be 1 less than the number of filter
+objects. Each element in `logicOp()` defines how two consecutive filters should
 be combined. Below we create a `AnnotationFilterList` containing two filter
 objects to be combined with a logical *AND*.
 
@@ -160,7 +160,7 @@ afl1 <- AnnotationFilterList(SymbolFilter("BCL2L11"),
 afl2 <- AnnotationFilterList(SymbolFilter("BCL2"),
                              TxBiotypeFilter("protein_coding"))
 ## Now combine both with a logical OR
-afl <- AnnotationFilterList(afl1, afl2, logOp = "|")
+afl <- AnnotationFilterList(afl1, afl2, logicOp = "|")
 
 afl
 ```

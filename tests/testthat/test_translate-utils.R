@@ -41,7 +41,7 @@ test_that("translation of combined expressions works", {
     expect_equal(res, cmp)
     res <- AnnotationFilter(~ exon_id == "EX1" | genename != "BCL2")
     cmp <- AnnotationFilterList(ExonIdFilter("EX1"),
-                                GenenameFilter("BCL2", "!="), logOp = "|")
+                                GenenameFilter("BCL2", "!="), logicOp = "|")
     expect_equal(res, cmp)
     ## 3 filters.
     res <- AnnotationFilter(~ exon_id == "EX1" & genename == "BCL2" |
@@ -49,7 +49,7 @@ test_that("translation of combined expressions works", {
     ## Expect an AnnotationFilterList of length 3.
     expect_equal(length(res), 3)
     cmp <- AnnotationFilterList(ExonIdFilter("EX1"), GenenameFilter("BCL2"),
-                                SeqNameFilter(3, "!="), logOp = c("&", "|"))
+                                SeqNameFilter(3, "!="), logicOp = c("&", "|"))
     expect_equal(res, cmp)
     ## 4 filters.
     res <- AnnotationFilter(~ exon_id == "EX1" & genename == "BCL2" |
@@ -57,7 +57,7 @@ test_that("translation of combined expressions works", {
     expect_equal(length(res), 4)
     cmp <- AnnotationFilterList(ExonIdFilter("EX1"), GenenameFilter("BCL2"),
                                 SeqNameFilter(3, "!="), SeqNameFilter("Y"),
-                                logOp = c("&", "|",  "|"))
+                                logicOp = c("&", "|",  "|"))
     expect_equal(res, cmp)
 })
 
@@ -74,15 +74,15 @@ test_that("translation works from within other functions", {
 ## test_that("translation of nested expressions works" {
 ##     res <- convertFilterExpression((exon_id == "EX1" & gene_id == "BCL2") |
 ##                                    (exon_id == "EX3" & gene_id == "BCL2L11"))
-##     expect_equal(logOp(res), "|")
+##     expect_equal(logicOp(res), "|")
 ##     expect_true(is(res[[1]], "AnnotationFilterList"))
 ##     expect_equal(res[[1]][[1]], ExonIdFilter("EX1"))
 ##     expect_equal(res[[1]][[2]], GeneIdFilter("BCL2"))
-##     expect_equal(logOp(res[[1]]), "&")
+##     expect_equal(logicOp(res[[1]]), "&")
 ##     expect_true(is(res[[2]], "AnnotationFilterList"))
 ##     expect_equal(res[[2]][[1]], ExonIdFilter("EX3"))
 ##     expect_equal(res[[2]][[2]], GeneIdFilter("BCL2L11"))
-##     expect_equal(logOp(res[[2]]), "&")
+##     expect_equal(logicOp(res[[2]]), "&")
 ##     ##
 ##     res <- convertFilterExpression(seq_name == "Y" |
 ##                                    (exon_id == "EX1" & gene_id == "BCL2") &
@@ -90,15 +90,15 @@ test_that("translation works from within other functions", {
 ##     ## Expect: length 3, first being a SeqNameFilter, second an
 ##     ## AnnotationFilterList, third a AnnotationFilterList.
 ##     expect_equal(res[[1]], SeqNameFilter("Y"))
-##     expect_equal(logOp(res), "|")
+##     expect_equal(logicOp(res), "|")
 ##     expect_true(is(res[[2]], "AnnotationFilterList"))
 ##     expect_equal(res[[1]][[1]], ExonIdFilter("EX1"))
 ##     expect_equal(res[[1]][[2]], GeneIdFilter("BCL2"))
-##     expect_equal(logOp(res[[1]]), "&")
+##     expect_equal(logicOp(res[[1]]), "&")
 ##     expect_true(is(res[[2]], "AnnotationFilterList"))
 ##     expect_equal(res[[2]][[1]], ExonIdFilter("EX3"))
 ##     expect_equal(res[[2]][[2]], GeneIdFilter("BCL2L11"))
-##     expect_equal(logOp(res[[2]]), "&")
+##     expect_equal(logicOp(res[[2]]), "&")
 
 ##     expect_true(is(res[[1]], "AnnotationFilterList"))
 ##     expect_true(is(res[[2]], "AnnotationFilterList"))

@@ -5,5 +5,7 @@ setGeneric("field", function(object, ...) standardGeneric("field"))
 
 setGeneric("value", function(object, ...) standardGeneric("value"))
 
+setGeneric("logicOp", function(object, ...) standardGeneric("logicOp"))
+
 setGeneric("supportedFilters", function(object, ...)
     standardGeneric("supportedFilters"))

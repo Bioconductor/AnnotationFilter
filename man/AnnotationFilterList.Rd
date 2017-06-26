@@ -6,12 +6,16 @@
 \alias{AnnotationFilterList-class}
 \alias{AnnotationFilterList}
 \alias{value,AnnotationFilterList-method}
+\alias{logicOp,AnnotationFilterList-method}
+\alias{logicOp}
 \alias{show,AnnotationFilterList-method}
 \title{Combining annotation filters}
 \usage{
-AnnotationFilterList(..., logOp = character())
+AnnotationFilterList(..., logicOp = character(), logOp = character())
 
 \S4method{value}{AnnotationFilterList}(object)
+
+\S4method{logicOp}{AnnotationFilterList}(object)
 
 \S4method{show}{AnnotationFilterList}(object)
 }
@@ -20,8 +24,8 @@ AnnotationFilterList(..., logOp = character())
 mixture of \code{AnnotationFilter} and
 \code{AnnotationFilterList} objects.}
 
-\item{logOp}{\code{character} of length being equal to the numner
-of submitted \code{AnnotationFilter} objects -1. Each value
+\item{logicOp}{\code{character} of length equal to the number
+of submitted \code{AnnotationFilter} objects - 1. Each value
 representing the logical operation to combine consecutive
 filters, i.e. the first element being the logical operation to
 combine the first and second \code{AnnotationFilter}, the
@@ -30,13 +34,18 @@ second and third \code{AnnotationFilter} and so on. Allowed
 values are \code{"&"} and \code{"|"}. The function assumes a
 logical \emph{and} between all elements by default.}
 
+\item{logOp}{Deprecated; use \code{logicOp=}.}
+
 \item{object}{An object of class \code{AnnotationFilterList}.}
 }
 \value{
 \code{AnnotationFilterList} returns an \code{AnnotationFilterList}.
 
-\code{value} returns a \code{list} with \code{AnnotationFilter}
+\code{value()} returns a \code{list} with \code{AnnotationFilter}
     objects.
+
+\code{logicOp()} returns a \code{character()} vector of
+    \dQuote{&} or \dQuote{|} symbols.
 }
 \description{
 The \code{AnnotationFilterList} allows to combine
@@ -50,6 +59,9 @@ The \code{AnnotationFilterList} allows to combine
 \code{value()} get a \code{list} with the
     \code{AnnotationFilter} objects. Use \code{[[} to access
     individual filters.
+
+\code{logicOp()} gets the logical operators separating
+    successive \code{AnnotationFilter}.
 }
 \note{
 The \code{AnnotationFilterList} does not support containing empty
@@ -77,7 +89,7 @@ afl[[1]]
 ## also found by the previous AnnotationFilterList and returns also all
 ## features on chromosome Y.
 afl <- AnnotationFilterList(gf, tbtf, SeqNameFilter("Y"),
-                            logOp = c("&", "|"))
+                            logicOp = c("&", "|"))
 afl
 
 }
