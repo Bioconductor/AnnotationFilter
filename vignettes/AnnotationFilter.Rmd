@@ -1,0 +1,404 @@
+---
+title: "Facilities for Filtering Bioconductor Annotation Resources"
+output:
+    BiocStyle::html_document2:
+        toc_float: true
+vignette: >
+    %\VignetteIndexEntry{Facilities for Filtering Bioconductor Annotation resources}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}
+    %\VignettePackage{AnnotationFilter}
+    %\VignetteDepends{org.Hs.eg.db,BiocStyle,RSQLite}
+---
+
+```{r style, echo = FALSE, results = 'asis', message=FALSE}
+BiocStyle::markdown()
+```
+
+**Package**: `r Biocpkg("AnnotationFilter")`<br />
+**Authors**: `r packageDescription("AnnotationFilter")[["Author"]] `<br />
+**Last modified:** `r file.info("AnnotationFilter.Rmd")$mtime`<br />
+**Compiled**: `r date()`
+
+
+# Introduction
+
+A large variety of annotation resources are available in Bioconductor. Accessing
+the full content of these databases or even of single tables is computationally
+expensive and in many instances not required, as users may want to extract only
+sub-sets of the data e.g. genomic coordinates of a single gene. In that respect,
+filtering annotation resources before data extraction has a major impact on
+performance and increases the usability of such genome-scale databases.
+
+The `r Biocpkg("AnnotationFilter")` package was thus developed to provide basic
+filter classes to enable a common filtering framework for Bioconductor
+annotation resources. `r Biocpkg("AnnotationFilter")` defines filter classes for
+some of the most commonly used features in annotation databases, such as
+*symbol* or *genename*. Each filter class is supposed to work on a single
+database table column and to facilitate filtering on the provided values. Such
+filter classes enable the user to build complex queries to retrieve specific
+annotations without needing to know column or table names or the layout of the
+underlying databases. While initially being developed to be used in the 
+`r Biocpkg("Organism.dplyr")` and `r Biocpkg("ensembldb")` packages, the filter
+classes and the related filtering concept can be easily added to other
+annotation packages too.
+
+
+# Filter classes
+
+All filter classes extend the basic `AnnotationFilter` class and take one or
+more *values* and a *condition* to allow filtering on a single database table
+column. Based on the type of the input value, filter classes are divided into:
+
+- `CharacterFilter`: takes a `character` value of length >= 1 and supports
+  conditions `==`, `!=`, `startsWith` and `endsWith`. An example would be a
+  `GeneIdFilter` that allows to filter on gene IDs.
+
+- `IntegerFilter`: takes a single `integer` as input and supports the conditions
+  `==`, `!=`, `>`, `<`, `>=` and `<=`. An example would be a `GeneStartFilter`
+  that filters results on the (chromosomal) start coordinates of genes.
+
+- `GRangesFilter`: is a special filter, as it takes a `GRanges` as `value` and
+  performs the filtering on a combination of columns (i.e. start and end
+  coordinate as well as sequence name and strand). To be consistent with the
+  `findOverlaps` method from the `r Biocpkg("IRanges")` package, the constructor
+  of the `GRangesFilter` filter takes a `type` argument to define its
+  condition. Supported values are `"any"` (the default) that retrieves all
+  entries overlapping the `GRanges`, `"start"` and `"end"` matching all features
+  with the same start and end coordinate respectively, `"within"` that matches
+  all features that are *within* the range defined by the `GRanges` and
+  `"equal"` that returns features that are equal to the `GRanges`.
+
+The names of the filter classes are intuitive, the first part corresponding to
+the database column name with each character following a `_` being capitalized,
+followed by the key word `Filter`. The name of a filter for a database table
+column `gene_id` is thus called `GeneIdFilter`. The default database column for
+a filter is stored in its `field` slot (accessible *via* the `field` method).
+
+The `supportedFilters` method can be used to get an overview of all available
+filter objects defined in `AnnotationFilter`.
+
+```{r supportedFilters}
+library(AnnotationFilter)
+supportedFilters()
+```
+
+Note that the `AnnotationFilter` package does provides only the filter classes
+but not the functionality to apply the filtering. Such functionality is
+annotation resource and database layout dependent and needs thus to be
+implemented in the packages providing access to annotation resources.
+
+
+# Usage
+
+Filters are created *via* their dedicated constructor functions, such as the
+`GeneIdFilter` function for the `GeneIdFilter` class. Because of this simple and
+cheap creation, filter classes are thought to be *read-only* and thus don't
+provide *setter* methods to change their slot values. In addition to the
+constructor functions, `AnnotationFilter` provides the functionality to
+*translate* query expressions into filter classes (see further below for an
+example).
+
+Below we create a `SymbolFilter` that could be used to filter an annotation
+resource to retrieve all entries associated with the specified symbol value(s).
+
+```{r symbol-filter}
+library(AnnotationFilter)
+
+smbl <- SymbolFilter("BCL2")
+smbl
+```
+
+Such a filter is supposed to be used to retrieve all entries associated to
+features with a value in a database table column called *symbol* matching the
+filter's value `"BCL2"`.
+
+Using the `"startsWith"` condition we could define a filter to retrieve all
+entries for genes with a gene name/symbol starting with the specified value
+(e.g. `"BCL2"` and `"BCL2L11"` for the example below.
+
+```{r symbol-startsWith}
+smbl <- SymbolFilter("BCL2", condition = "startsWith")
+smbl
+```
+
+In addition to the constructor functions, `AnnotationFilter` provides a
+functionality to create filter instances in a more natural and intuitive way by
+*translating* filter expressions (written as a *formula*, i.e. starting with a
+`~`).
+
+```{r convert-expression}
+smbl <- AnnotationFilter(~ symbol == "BCL2")
+smbl
+```
+
+Individual `AnnotationFilter` objects can be combined in an
+`AnnotationFilterList`. This class extends `list` and provides an additional
+`logicOp()` that defines how its individual filters are supposed to be
+combined. The length of `logicOp()` has to be 1 less than the number of filter
+objects. Each element in `logicOp()` defines how two consecutive filters should
+be combined. Below we create a `AnnotationFilterList` containing two filter
+objects to be combined with a logical *AND*.
+
+```{r convert-multi-expression}
+flt <- AnnotationFilter(~ symbol == "BCL2" &
+                            tx_biotype == "protein_coding")
+flt
+```
+
+Note that the `AnnotationFilter` function does not (yet) support translation of
+nested expressions, such as `(symbol == "BCL2L11" & tx_biotype ==
+"nonsense_mediated_decay") | (symbol == "BCL2" & tx_biotype ==
+"protein_coding")`. Such queries can however be build by nesting
+`AnnotationFilterList` classes.
+
+```{r nested-query}
+## Define the filter query for the first pair of filters.
+afl1 <- AnnotationFilterList(SymbolFilter("BCL2L11"),
+                             TxBiotypeFilter("nonsense_mediated_decay"))
+## Define the second filter pair in ( brackets should be combined.
+afl2 <- AnnotationFilterList(SymbolFilter("BCL2"),
+                             TxBiotypeFilter("protein_coding"))
+## Now combine both with a logical OR
+afl <- AnnotationFilterList(afl1, afl2, logicOp = "|")
+
+afl
+```
+
+This `AnnotationFilterList` would now select all entries for all transcripts of
+the gene *BCL2L11* with the biotype *nonsense_mediated_decay* or for all protein
+coding transcripts of the gene *BCL2*.
+
+
+# Using `AnnotationFilter` in other packages
+
+The `AnnotationFilter` package does only provide filter classes, but no
+filtering functionality. This has to be implemented in the package using the
+filters. In this section we first show in a very simple example how
+`AnnotationFilter` classes could be used to filter a `data.frame` and
+subsequently explore how a simple filter framework could be implemented for a
+SQL based annotation resources.
+
+Let's first define a simple `data.frame` containing the data we want to
+filter. Note that subsetting this `data.frame` using `AnnotationFilter` is
+obviously not the best solution, but it should help to understand the basic
+concept.
+
+```{r define-data.frame}
+## Define a simple gene table
+gene <- data.frame(gene_id = 1:10,
+                   symbol = c(letters[1:9], "b"),
+                   seq_name = paste0("chr", c(1, 4, 4, 8, 1, 2, 5, 3, "X", 4)),
+                   stringsAsFactors = FALSE)
+gene
+```
+
+Next we generate a `SymbolFilter` and inspect what information we can extract
+from it.
+
+```{r simple-symbol}
+smbl <- SymbolFilter("b")
+```
+
+We can access the filter *condition* using the `condition` method
+
+```{r simple-symbol-condition}
+condition(smbl)
+```
+
+The value of the filter using the `value` method
+
+```{r simple-symbol-value}
+value(smbl)
+```
+
+And finally the *field* (i.e. column in the data table) using the `field`
+method.
+
+```{r simple-symbol-field}
+field(smbl)
+```
+
+With this information we can define a simple function that takes the data table
+and the filter as input and returns a `logical` with length equal to the number
+of rows of the table, `TRUE` for rows matching the filter.
+
+```{r doMatch}
+
+doMatch <- function(x, filter) {
+    do.call(condition(filter), list(x[, field(filter)], value(filter)))
+}
+
+## Apply this function
+doMatch(gene, smbl)
+
+```
+
+Note that this simple function does not support multiple filters and also not
+conditions `"startsWith"` or `"endsWith"`. Next we define a second function that
+extracts the relevant data from the data resource.
+
+```{r doExtract}
+
+doExtract <- function(x, filter) {
+    x[doMatch(x, filter), ]
+}
+
+## Apply it on the data
+doExtract(gene, smbl)
+```
+
+We could even modify the `doMatch` function to enable filter expressions.
+
+```{r doMatch-formula}
+
+doMatch <- function(x, filter) {
+    if (is(filter, "formula"))
+        filter <- AnnotationFilter(filter)
+    do.call(condition(filter), list(x[, field(filter)], value(filter)))
+}
+
+doExtract(gene, ~ gene_id == '2')
+
+```
+
+For such simple examples `AnnotationFilter` might be an overkill as the same
+could be achieved (much simpler) using standard R operations. A real case
+scenario in which `AnnotationFilter` becomes useful are SQL-based annotation
+resources. We will thus explore next how SQL resources could be filtered using
+`AnnotationFilter`.
+
+We use the SQLite database from the `r Biocpkg("org.Hs.eg.db")` package that
+provides a variety of annotations for all human genes. Using the packages'
+connection to the database we inspect first what database tables are available
+and then select one for our simple filtering example. 
+
+We use an `EnsDb` SQLite database used by the `r Biocpkg("ensembldb")` package
+and implement simple filter functions to extract specific data from one of its
+database tables. We thus load below the `EnsDb.Hsapiens.v75` package that
+provides access to human gene, transcript, exon and protein annotations. Using
+its connection to the database we inspect first what database tables are
+available and then what *fields* (i.e. columns) the *gene* table has.
+
+```{r orgDb, message = FALSE}
+## Load the required packages
+library(org.Hs.eg.db)
+library(RSQLite)
+## Get the database connection
+dbcon <- org.Hs.eg_dbconn()
+
+## What tables do we have?
+dbListTables(dbcon)
+```
+
+`org.Hs.eg.db` provides many different tables, one for each identifier or
+annotation resource. We will use the *gene_info* table and determine which
+*fields* (i.e. columns) the table provides.
+
+```{r gene_info}
+## What fields are there in the gene_info table?
+dbListFields(dbcon, "gene_info")
+```
+
+The *gene_info* table provides the official gene symbol and the gene name. The
+column *symbol* matches the default `field` value of the `SymbolFilter`. For the
+`GenenameFilter` we would have to re-map its default field `"genename"` to the
+database column *gene_name*. There are many possibilities to do this, one would
+be to implement an own function to extract the field from the `AnnotationFilter`
+classes specific to the database. This function eventually renames the extracted
+field value to match the corresponding name of the database column name.
+
+We next implement a simple `doExtractGene` function that retrieves data from the
+*gene_info* table and re-uses the `doFilter` function to extract specific
+data. The parameter `x` is now the database connection object.
+
+```{r doExtractSQL}
+
+doExtractGene <- function(x, filter) {
+    gene <- dbGetQuery(x, "select * from gene_info")
+    doExtract(gene, filter)
+}
+
+## Extract all entries for BCL2
+bcl2 <- doExtractGene(dbcon, SymbolFilter("BCL2"))
+
+bcl2
+```
+
+This works, but is not really efficient, since the function first fetches the
+full database table and subsets it only afterwards. A much more efficient
+solution is to *translate* the `AnnotationFilter` class(es) to an SQL *where*
+condition and hence perform the filtering on the database level. Here we have to
+do some small modifications, since not all condition values can be used 1:1 in
+SQL calls. The condition `"=="` has for example to be converted into `"="` and
+the `"startsWith"` into a SQL `"like"` by adding also a `"%"` wildcard to the
+value of the filter. We would also have to deal with filters that have a `value`
+of length > 1. A `SymbolFilter` with a `value` being `c("BCL2", "BCL2L11")`
+would for example have to be converted to a SQL call `"symbol in
+('BCL2','BCL2L11')"`. Here we skip these special cases and define a simple
+function that translates an `AnnotationFilter` to a *where* condition to be
+included into the SQL call. Depending on whether the filter extends
+`CharacterFilter` or `IntegerFilter` the value has also to be quoted.
+
+```{r simpleSQL}
+
+## Define a simple function that covers some condition conversion
+conditionForSQL <- function(x) {
+    switch(x,
+           "==" = "=",
+           x)
+}
+
+## Define a function to translate a filter into an SQL where condition.
+## Character values have to be quoted.
+where <- function(x) {
+    if (is(x, "CharacterFilter"))
+        value <- paste0("'", value(x), "'")
+    else value <- value(x)
+    paste0(field(x), conditionForSQL(condition(x)), value)
+}
+
+## Now "translate" a filter using this function
+where(SeqNameFilter("Y"))
+
+```
+
+Next we implement a new function which integrates the filter into the SQL call
+to let the database server take care of the filtering.
+
+```{r doExtractGene2}
+
+## Define a function that 
+doExtractGene2 <- function(x, filter) {
+    if (is(filter, "formula"))
+        filter <- AnnotationFilter(filter)
+    query <- paste0("select * from gene_info where ", where(filter))
+    dbGetQuery(x, query)
+}
+
+bcl2 <- doExtractGene2(dbcon, ~ symbol == "BCL2")
+bcl2
+
+```
+
+Below we compare the performance of both approaches.
+
+```{r performance}
+system.time(doExtractGene(dbcon, ~ symbol == "BCL2"))
+
+system.time(doExtractGene2(dbcon, ~ symbol == "BCL2"))
+
+```
+
+Not surprisingly, the second approach is much faster.
+
+Be aware that the examples shown here are only for illustration purposes. In a
+real world situation additional factors, like combinations of filters, which
+database tables to join, which columns to be returned etc would have to be
+considered too.
+
+# Session information
+
+```{r si}
+sessionInfo()
+```
