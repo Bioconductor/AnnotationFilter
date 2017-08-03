@@ -128,9 +128,14 @@ AnnotationFilterList <-
         logicOp <- logOp
         .Deprecated(msg = "'logOp' deprecated, use 'logicOp'")
     }
-    filters <- list(...)				## TODO: Messy?
-    ## By default we're assuming & between elements.
+    filters <- list(...)
+	## Remove empty nested AnnotationFilterLists
+	for (i in seq_len(length(filters))) {
+		if(is(filters[[i]], "AnnotationFilterList") && length(filters[[i]]) == 0)
+			filters <- filters[-i]
+	}
     if (length(filters) > 1 & length(logicOp) == 0)
+    ## By default we're assuming & between elements.
         logicOp <- rep("&", (length(filters) - 1))
     .AnnotationFilterList(filters, logOp = logicOp, not = not)
 }
@@ -140,17 +145,6 @@ AnnotationFilterList <-
 .aflvalue <- function(object) object@.Data
 
 .not <- function(object) object@not
-
-#' @rdname AnnotationFilterList
-#'
-#' @description \code{[} subset an \code{AnnotationFilterList} while maintaining
-#' 	   the \code{AnnotationFilterList} object with its appropriate
-#'     \code{logicOps}.
-#'
-#' @return \code{[} returns a subsetted \code{AnnotationFilterList}.
-#'
-#' @export
-#setMethod("[", "AnnotationFilterList", function(x)
 
 #' @rdname AnnotationFilterList
 #'
