@@ -7,6 +7,8 @@ Authors@R: c(
     person("Johannes", "Rainer", email = "johannes.rainer@eurac.edu",
         role = "aut"),
     person("Joachim", "Bargsten", email = "jw@bargsten.org", role = "ctb"),
+	person("Daniel", "Van Twisk", email = "daniel.vantwisk@roswellpark.org",
+		role = "ctb"),
     person("Bioconductor", "Maintainer", email="maintainer@bioconductor.org",
         role = "cre"))
 URL: https://github.com/Bioconductor/AnnotationFilter

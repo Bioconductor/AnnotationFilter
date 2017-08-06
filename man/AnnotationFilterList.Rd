@@ -10,8 +10,6 @@
 \alias{logicOp}
 \alias{not,AnnotationFilterList-method}
 \alias{not}
-\alias{[,AnnotationFilterList,ANY-method}
-\alias{subset}
 \alias{show,AnnotationFilterList-method}
 \title{Combining annotation filters}
 \usage{
@@ -23,8 +21,6 @@ AnnotationFilterList(..., logicOp = character(), logOp = character(),
 \S4method{logicOp}{AnnotationFilterList}(object)
 
 \S4method{not}{AnnotationFilterList}(object)
-
-\S4method{[}{AnnotationFilterList,ANY}(x, i, j, ..., drop = TRUE)
 
 \S4method{show}{AnnotationFilterList}(object)
 }
@@ -45,12 +41,13 @@ logical \emph{and} between all elements by default.}
 
 \item{logOp}{Deprecated; use \code{logicOp=}.}
 
+\item{not}{\code{logical} of length one. Indicates whether the grouping
+of \code{AnnotationFilters} are to be negated.}
+
 \item{object}{An object of class \code{AnnotationFilterList}.}
 }
 \value{
 \code{AnnotationFilterList} returns an \code{AnnotationFilterList}.
-
-\code{[} returns a subsetted \code{AnnotationFilterList}.
 
 \code{value()} returns a \code{list} with \code{AnnotationFilter}
     objects.
@@ -59,9 +56,6 @@ logical \emph{and} between all elements by default.}
     \dQuote{&} or \dQuote{|} symbols.
 
 \code{not()} returns a \code{character()} vector of
-    \dQuote{&} or \dQuote{|} symbols.
-
-\code{[} returns a \code{character()} vector of
     \dQuote{&} or \dQuote{|} symbols.
 }
 \description{
@@ -73,10 +67,6 @@ The \code{AnnotationFilterList} allows to combine
     \code{AnnotationFilterList} extends \code{list}, individual
     elements can thus be accessed with \code{[[}.
 
-\code{[} subset an \code{AnnotationFilterList} while maintaining
-	   the \code{AnnotationFilterList} object with its appropriate
-    \code{logicOps}.
-
 \code{value()} get a \code{list} with the
     \code{AnnotationFilter} objects. Use \code{[[} to access
     individual filters.
@@ -85,9 +75,6 @@ The \code{AnnotationFilterList} allows to combine
     successive \code{AnnotationFilter}.
 
 \code{not()} gets the logical operators separating
-    successive \code{AnnotationFilter}.
-
-\code{[} gets the logical operators separating
     successive \code{AnnotationFilter}.
 }
 \note{
