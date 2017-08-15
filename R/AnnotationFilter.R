@@ -134,10 +134,12 @@ NULL
     slots = c(
         field="character",
         condition="character",
-        value="ANY"
+        value="ANY",
+        not="logical"
     ),
     prototype=list(
-        condition= "=="
+        condition= "==",
+        not= FALSE
     )
 )
 
@@ -146,6 +148,7 @@ setValidity("AnnotationFilter", function(object) {
 
     value <- .value(object)
     condition <- .condition(object)
+    not <- .not(object)
     test_len <- length(condition) == 1L
     test_NA <- !any(is.na(condition))
 
@@ -158,6 +161,9 @@ setValidity("AnnotationFilter", function(object) {
     if (test0 && test1 && length(value) > 1L)
         txt <- c(txt, paste0("'", condition, "' requires length 1 'value'"))
 
+    if(length(not) != 1)
+        txt <- c(txt, '"not" value must be of length 1.')
+
     if (any(is.na(value)))
         txt <- c(txt, "'value' can not be NA")
 
@@ -169,6 +175,8 @@ setValidity("AnnotationFilter", function(object) {
 .condition <- function(object) object@condition
 
 .value <- function(object) object@value
+
+.not <- function(object) object@not
 
 #' @rdname AnnotationFilter
 #'
@@ -202,10 +210,18 @@ setMethod("value", "AnnotationFilter", .value)
 #' @export
 setMethod("field", "AnnotationFilter", .field)
 
+#' @rdname AnnotationFilter
+#'
+#' @description \code{not()} get the \code{not} for the filter \code{object}.
+#'
+#' @export
+setMethod("not", "AnnotationFilter", .not)
+
 #' @importFrom methods show
 #'
 #' @export
 setMethod("show", "AnnotationFilter", function(object){
+    if(.not(object)) cat("NOT\n")
     cat("class:", class(object),
         "\ncondition:", .condition(object), "\n")
 })
@@ -225,8 +241,6 @@ setMethod("show", "AnnotationFilter", function(object){
 )
 
 setValidity("CharacterFilter", function(object) {
-	if (!is.character(value(object)))
-		return('value must be a character')
     .valid_condition(.condition(object), "CharacterFilter")
 })
 
@@ -249,8 +263,6 @@ setMethod("show", "CharacterFilter", function(object) {
 )
 
 setValidity("IntegerFilter", function(object) {
-	if (!is.numeric(value(object)))
-		return('value must be numeric')
     .valid_condition(.condition(object), "IntegerFilter")
 })
 
@@ -382,10 +394,17 @@ NULL
     force(field); force(class)          # watch for lazy evaluation
     as.value <-
         if (field %in% .FIELD[["CharacterFilter"]]) {
-            as.character
+            function(x) {
+#               if(!is.character(x))
+#                  stop("Input to a ", field,
+#                       "filter must be a character vector.")
+                as.character(x)
+            }
         } else {
             function(x) {
-                stopifnot(is.numeric(x))
+                if(!is.numeric(x))
+                    stop("Input to a ", field,
+                         "filter must be a numeric vector.")
                 as.integer(x)
             }
         }

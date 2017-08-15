@@ -27,7 +27,7 @@ NULL
     "AnnotationFilterList",
     contains = "list",
     slots = c(logOp = "character",
-			  not = "logical")
+              not = "logical")
 )
 
 .LOG_OPS <- c("&", "|")
@@ -38,7 +38,7 @@ setValidity("AnnotationFilterList",
     txt <- character()
     filters <- .aflvalue(object)
     logOp <- .logOp(object)
-	not <- .not(object)
+    not <- .not(object)
     if (length(filters) == 0 && length(logOp)) {
         txt <- c(
             txt, "'logicOp' can not have length > 0 if the object is empty"
@@ -92,7 +92,7 @@ setValidity("AnnotationFilterList",
 #' @param logOp Deprecated; use \code{logicOp=}.
 #'
 #' @param not \code{logical} of length one. Indicates whether the grouping
-#'		of \code{AnnotationFilters} are to be negated.
+#'      of \code{AnnotationFilters} are to be negated.
 #'
 #' @seealso \code{\link{supportedFilters}} for available
 #'     \code{\link{AnnotationFilter}} objects
@@ -133,12 +133,12 @@ AnnotationFilterList <-
     }
     filters <- list(...)
 
-	## Remove empty nested lists and AnnotationFilterLists
-	removal <- lengths(filters) != 0
-	filters <- filters[removal]
+    ## Remove empty nested lists and AnnotationFilterLists
+    removal <- lengths(filters) != 0
+    filters <- filters[removal]
 
     if (length(filters) > 1 & length(logicOp) == 0)
-    	## By default we're assuming & between elements.
+        ## By default we're assuming & between elements.
         logicOp <- rep("&", (length(filters) - 1))
     .AnnotationFilterList(filters, logOp = logicOp, not = not)
 }
@@ -189,6 +189,59 @@ setMethod("not", "AnnotationFilterList", .not)
 
 #' @rdname AnnotationFilterList
 #'
+#' @aliases simplify
+#'
+#' @description
+#'
+#' @export
+setMethod("simplify", "AnnotationFilterList", function(object) {
+    if(length(object)==0)
+        return(object)
+    if(length(object)==c(1, 2))
+        return(AnnotationFilterList())
+    return(AnnotationFilterList())
+})
+
+#' @rdname AnnotationFilterList
+#'
+#' @aliases distributeNegation
+#'
+#' @description
+#'
+#' @param prior_negation whether the previous \code{AnnotationFilterList} object
+#'      was negated (meant to not be utilized by user).
+#'
+#' @return \code{AnnotationFilterList} object with DeMorgan's law applied to
+#'      it such that it is equal to the original \code{AnnotationFilterList}
+#'      object but all \code{!}'s are distributed out of the
+#'      \code{AnnotationFilterList} object and to the nested
+#'      \code{AnnotationFilter} objects.
+#'
+#' @export
+setMethod('distributeNegation', signature("AnnotationFilterList"),
+          function(object, prior_negation=FALSE){
+    if(.not(object)) prior_negation <- ifelse(prior_negation, FALSE, TRUE)
+    filters <- lapply(object, function(x){
+        if(is(x, "AnnotationFilterList"))
+            distributeNegation(x, prior_negation)   
+        else{
+            if(prior_negation) x@not <- ifelse(x@not, FALSE, TRUE)
+            x
+        }
+    })
+    ops <- vapply(logicOp(object), function(x) {
+            if(prior_negation){
+                if(x == '&') '|'
+                else '&'
+            } else x
+    }
+        , character(1))
+    filters[['logicOp']] <- ops
+    do.call("AnnotationFilterList", filters)
+})
+
+#' @rdname AnnotationFilterList
+#'
 #' @param object An object of class \code{AnnotationFilterList}.
 #'
 #' @importFrom utils tail
@@ -201,8 +254,8 @@ setMethod("show", "AnnotationFilterList",
         "length: ", length(object), "\n",
         sep = ""
     )
-	if(not(object))
-		cat("NOT\n")
+    if(not(object))
+        cat("NOT\n")
     if (length(object)) {
         cat("filters:\n\n")
         show(object[[1]])

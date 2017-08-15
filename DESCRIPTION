@@ -1,14 +1,14 @@
 Package: AnnotationFilter
 Title: Facilities for Filtering Bioconductor Annotation Resources
-Version: 1.1.4
+Version: 1.1.5
 Authors@R: c(
     person("Martin", "Morgan", email = "martin.morgan@roswellpark.org",
         role = "aut"),
     person("Johannes", "Rainer", email = "johannes.rainer@eurac.edu",
         role = "aut"),
     person("Joachim", "Bargsten", email = "jw@bargsten.org", role = "ctb"),
-	person("Daniel", "Van Twisk", email = "daniel.vantwisk@roswellpark.org",
-		role = "ctb"),
+    person("Daniel", "Van Twisk", email = "daniel.vantwisk@roswellpark.org",
+        role = "ctb"),
     person("Bioconductor", "Maintainer", email="maintainer@bioconductor.org",
         role = "cre"))
 URL: https://github.com/Bioconductor/AnnotationFilter
@@ -20,7 +20,7 @@ Description: This package provides class and other infrastructure to
 Depends:
     R (>= 3.4.0)
 Imports:
-	S4Vectors,
+    S4Vectors,
     utils,
     methods,
     GenomicRanges,

@@ -10,6 +10,10 @@
 \alias{logicOp}
 \alias{not,AnnotationFilterList-method}
 \alias{not}
+\alias{simplify,AnnotationFilterList-method}
+\alias{simplify}
+\alias{distributeNegation,AnnotationFilterList-method}
+\alias{distributeNegation}
 \alias{show,AnnotationFilterList-method}
 \title{Combining annotation filters}
 \usage{
@@ -21,6 +25,11 @@ AnnotationFilterList(..., logicOp = character(), logOp = character(),
 \S4method{logicOp}{AnnotationFilterList}(object)
 
 \S4method{not}{AnnotationFilterList}(object)
+
+\S4method{simplify}{AnnotationFilterList}(object)
+
+\S4method{distributeNegation}{AnnotationFilterList}(object,
+  prior_negation = FALSE)
 
 \S4method{show}{AnnotationFilterList}(object)
 }
@@ -45,6 +54,9 @@ logical \emph{and} between all elements by default.}
 of \code{AnnotationFilters} are to be negated.}
 
 \item{object}{An object of class \code{AnnotationFilterList}.}
+
+\item{prior_negation}{whether the previous \code{AnnotationFilterList} object
+was negated (meant to not be utilized by user).}
 }
 \value{
 \code{AnnotationFilterList} returns an \code{AnnotationFilterList}.
@@ -57,6 +69,12 @@ of \code{AnnotationFilters} are to be negated.}
 
 \code{not()} returns a \code{character()} vector of
     \dQuote{&} or \dQuote{|} symbols.
+
+\code{AnnotationFilterList} object with DeMorgan's law applied to
+	it such that it is equal to the original \code{AnnotationFilterList}
+	object but all \code{!}'s are distributed out of the
+	\code{AnnotationFilterList} object and to the nested
+	\code{AnnotationFilter} objects.
 }
 \description{
 The \code{AnnotationFilterList} allows to combine
@@ -76,6 +94,10 @@ The \code{AnnotationFilterList} allows to combine
 
 \code{not()} gets the logical operators separating
     successive \code{AnnotationFilter}.
+
+
+
+
 }
 \note{
 The \code{AnnotationFilterList} does not support containing empty
