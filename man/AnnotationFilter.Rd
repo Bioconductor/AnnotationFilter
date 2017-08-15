@@ -63,6 +63,7 @@
 \alias{value}
 \alias{field,AnnotationFilter-method}
 \alias{field}
+\alias{not,AnnotationFilter-method}
 \alias{GRangesFilter-class}
 \alias{.GRangesFilter}
 \alias{GRangesFilter}
@@ -101,6 +102,8 @@ SeqStrandFilter(value, condition = "==")
 \S4method{value}{AnnotationFilter}(object)
 
 \S4method{field}{AnnotationFilter}(object)
+
+\S4method{not}{AnnotationFilter}(object)
 
 GRangesFilter(value, feature = "gene", type = c("any", "start", "end",
   "within", "equal"))
@@ -168,6 +171,8 @@ supported filters for the specific resource.
 
 \code{field()} get the \code{field} for the filter
     \code{object}.
+
+\code{not()} get the \code{not} for the filter \code{object}.
 
 \code{feature()} get the \code{feature} for the
     \code{GRangesFilter} \code{object}.

@@ -50,15 +50,15 @@ test_that("translation of combined expressions works", {
     expect_equal(length(res), 3)
     cmp <- AnnotationFilterList(ExonIdFilter("EX1"), GenenameFilter("BCL2"),
                                 SeqNameFilter(3, "!="), logicOp = c("&", "|"))
-    #expect_equal(res, cmp)
+    expect_equal(res, cmp)
     ## 4 filters.
     res <- AnnotationFilter(~ exon_id == "EX1" & genename == "BCL2" |
                                 seq_name != 3 | seq_name == "Y")
-    #expect_equal(length(res), 4)
+    expect_equal(length(res), 4)
     cmp <- AnnotationFilterList(ExonIdFilter("EX1"), GenenameFilter("BCL2"),
                                 SeqNameFilter(3, "!="), SeqNameFilter("Y"),
                                 logicOp = c("&", "|",  "|"))
-    #expect_equal(res, cmp)
+    expect_equal(res, cmp)
 })
 
 test_that("translation works from within other functions", {

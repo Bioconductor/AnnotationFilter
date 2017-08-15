@@ -9,5 +9,10 @@ setGeneric("logicOp", function(object, ...) standardGeneric("logicOp"))
 
 setGeneric("not", function(object, ...) standardGeneric("not"))
 
+setGeneric("simplify", function(object, ...) standardGeneric("simplify"))
+
+setGeneric("distributeNegation", function(object, ...)
+           standardGeneric("distributeNegation"))
+
 setGeneric("supportedFilters", function(object, ...)
     standardGeneric("supportedFilters"))

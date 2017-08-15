@@ -37,24 +37,23 @@
 .not_op <- function(sep) {
     force(sep)
     function(x) {
-		if(is(x, "AnnotationFilterList")) {
-			val <- .aflvalue(x)
-			logOp <- logicOp(x)
-
-			new("AnnotationFilterList", val, logOp=logOp, not=TRUE)
-		}
-		else if (is(x, "AnnotationFilter")) 
-			AnnotationFilterList(x, logicOp=character(), not=TRUE)
-		else
-			stop('Arguments to "!" must be an AnnotationFilter or AnnotationFilerList.')
+        if(is(x, "AnnotationFilterList") || is(x, "AnnotationFilter")) {
+            if(x@not) x@not <- FALSE
+            else x@not <- TRUE
+            return(x)
+        }
+#       else if (is(x, "AnnotationFilter")) 
+#           AnnotationFilterList(x, logicOp=character(), not=TRUE)
+        else
+            stop('Arguments to "!" must be an AnnotationFilter or AnnotationFilerList.')
     }
 }
 
 .parenthesis_op <- function(sep) {
-	force(sep)
-	function(x) {
-		AnnotationFilterList(x)
-	}
+    force(sep)
+    function(x) {
+        AnnotationFilterList(x)
+    }
 }
 
 
@@ -64,20 +63,24 @@
 .combine_op <- function(sep) {
     force(sep)
     function(e1, e2) {
-        ## Avoid implicit nesting of AnnotationFilterList - should be done
-        ## eventually
-        #if (is(e1, "AnnotationFilterList") && !not(e1)) {
-        #    sep <- c(logicOp(e1), sep)
-        #    e1 <- .aflvalue(e1)
-        #} else
-        #    e1 <- SimepleList(e1)
-        #if (is(e2, "AnnotationFilterList") && !not(e2)) {
-        #    sep <- c(logicOp(e2), sep)
-        #    e2 <- .aflvalue(e2)
-        #} else
-        #    e2 <- SimpleList(e2)
-        ## Don't use the constructor here.
-        new("AnnotationFilterList", list(e1, e2), logOp = sep, not=FALSE)
+        ## Avoid implicit nesting of AnnotationFilterList
+        op1 <- character()
+        op2 <- character()
+        if (is(e1, "AnnotationFilterList") && !not(e1)) {
+            op1 <- logicOp(e1)
+            e1 <- .aflvalue(e1)
+        } else {
+            e1 <- list(e1)
+        }
+        if (is(e2, "AnnotationFilterList") && !not(e2)) {
+            op2 <- logicOp(e2)
+            e2 <- .aflvalue(e2)
+        } else {
+            e2 <- list(e2)
+        }
+        input <- c(e1, e2)
+        input[['logicOp']] <- c(op1, sep, op2)
+        do.call("AnnotationFilterList", input)
     }
 }
 
