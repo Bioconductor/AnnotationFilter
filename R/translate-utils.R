@@ -5,7 +5,6 @@
 #' Adapted from GenomicDataCommons.
 #'
 #' @importFrom methods is validObject initialize
-#' @importFrom S4Vectors SimpleList
 #'
 #' @noRd
 .binary_op <- function(sep) {
