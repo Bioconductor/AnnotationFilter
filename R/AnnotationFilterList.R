@@ -92,6 +92,8 @@ setValidity("AnnotationFilterList",
 #'
 #' @param logOp Deprecated; use \code{logicOp=}.
 #'
+#' @param .groupingFlag Flag desginated for internal use only.
+#'
 #' @param not \code{logical} of length one. Indicates whether the grouping
 #'      of \code{AnnotationFilters} are to be negated.
 #'

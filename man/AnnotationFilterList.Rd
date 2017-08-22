@@ -18,7 +18,7 @@
 \title{Combining annotation filters}
 \usage{
 AnnotationFilterList(..., logicOp = character(), logOp = character(),
-  not = FALSE)
+  not = FALSE, .groupingFlag = FALSE)
 
 \S4method{value}{AnnotationFilterList}(object)
 
@@ -53,6 +53,8 @@ logical \emph{and} between all elements by default.}
 \item{not}{\code{logical} of length one. Indicates whether the grouping
 of \code{AnnotationFilters} are to be negated.}
 
+\item{.groupingFlag}{Flag desginated for internal use only.}
+
 \item{object}{An object of class \code{AnnotationFilterList}.}
 
 \item{prior_negation}{whether the previous \code{AnnotationFilterList} object
@@ -71,10 +73,10 @@ was negated (meant to not be utilized by user).}
     \dQuote{&} or \dQuote{|} symbols.
 
 \code{AnnotationFilterList} object with DeMorgan's law applied to
-	it such that it is equal to the original \code{AnnotationFilterList}
-	object but all \code{!}'s are distributed out of the
-	\code{AnnotationFilterList} object and to the nested
-	\code{AnnotationFilter} objects.
+     it such that it is equal to the original \code{AnnotationFilterList}
+     object but all \code{!}'s are distributed out of the
+     \code{AnnotationFilterList} object and to the nested
+     \code{AnnotationFilter} objects.
 }
 \description{
 The \code{AnnotationFilterList} allows to combine

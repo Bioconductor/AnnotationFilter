@@ -157,7 +157,6 @@
 #' @export
 AnnotationFilter <- function(expr) {
     res <- f_eval(expr, data = .LOG_OP_REG)
-    if(is(res, "AnnotationFilter")) res <- AnnotationFilterList(res)
-    res@.groupingFlag <- FALSE
+    if(is(res, "AnnotationFilterList")) res@.groupingFlag <- FALSE
     res
 }
