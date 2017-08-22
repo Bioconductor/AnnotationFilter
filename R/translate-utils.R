@@ -41,6 +41,7 @@
         if(is(x, "AnnotationFilterList") || is(x, "AnnotationFilter")) {
             if(x@not) x@not <- FALSE
             else x@not <- TRUE
+            if(is(x, "AnnotationFilterList")) x@.groupingFlag <- FALSE
             return(x)
         }
 #       else if (is(x, "AnnotationFilter")) 
@@ -53,7 +54,7 @@
 .parenthesis_op <- function(sep) {
     force(sep)
     function(x) {
-        AnnotationFilterList(x)
+        AnnotationFilterList(x, .groupingFlag=FALSE)
     }
 }
 
@@ -64,16 +65,15 @@
 .combine_op <- function(sep) {
     force(sep)
     function(e1, e2) {
-        ## Avoid implicit nesting of AnnotationFilterList
         op1 <- character()
         op2 <- character()
-        if (is(e1, "AnnotationFilterList") && !not(e1)) {
+        if (is(e1, "AnnotationFilterList") && e1@.groupingFlag) {
             op1 <- logicOp(e1)
             e1 <- .aflvalue(e1)
         } else {
             e1 <- list(e1)
         }
-        if (is(e2, "AnnotationFilterList") && !not(e2)) {
+        if (is(e2, "AnnotationFilterList") && e2@.groupingFlag) {
             op2 <- logicOp(e2)
             e2 <- .aflvalue(e2)
         } else {
@@ -81,6 +81,7 @@
         }
         input <- c(e1, e2)
         input[['logicOp']] <- c(op1, sep, op2)
+        input[['.groupingFlag']] <- TRUE
         do.call("AnnotationFilterList", input)
     }
 }
@@ -156,5 +157,8 @@
 #' 
 #' @export
 AnnotationFilter <- function(expr) {
-    f_eval(expr, data = .LOG_OP_REG)
+    res <- f_eval(expr, data = .LOG_OP_REG)
+    if(is(res, "AnnotationFilter")) res <- AnnotationFilterList(res)
+    res@.groupingFlag <- FALSE
+    res
 }
