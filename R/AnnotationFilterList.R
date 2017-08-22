@@ -27,7 +27,8 @@ NULL
     "AnnotationFilterList",
     contains = "list",
     slots = c(logOp = "character",
-              not = "logical")
+              not = "logical",
+              .groupingFlag = "logical")
 )
 
 .LOG_OPS <- c("&", "|")
@@ -125,7 +126,8 @@ setValidity("AnnotationFilterList",
 #'
 #' @export
 AnnotationFilterList <-
-    function(..., logicOp = character(), logOp = character(), not = FALSE)
+    function(..., logicOp = character(), logOp = character(), not = FALSE,
+        .groupingFlag=FALSE)
 {
     if (!missing(logOp) && missing(logicOp)) {
         logicOp <- logOp
@@ -140,7 +142,8 @@ AnnotationFilterList <-
     if (length(filters) > 1 & length(logicOp) == 0)
         ## By default we're assuming & between elements.
         logicOp <- rep("&", (length(filters) - 1))
-    .AnnotationFilterList(filters, logOp = logicOp, not = not)
+    .AnnotationFilterList(filters, logOp = logicOp, not = not,
+        .groupingFlag=.groupingFlag)
 }
 
 .logOp <- function(object) object@logOp
