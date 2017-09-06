@@ -69,6 +69,7 @@
 \alias{GRangesFilter}
 \alias{feature}
 \alias{AnnotationFilter}
+\alias{convertFilter,AnnotationFilter-method}
 \alias{supportedFilters,missing-method}
 \alias{AnnotationFilter}
 \title{Filters for annotation objects}
@@ -110,6 +111,8 @@ GRangesFilter(value, feature = "gene", type = c("any", "start", "end",
 
 feature(object)
 
+\S4method{convertFilter}{AnnotationFilter}(object)
+
 \S4method{supportedFilters}{missing}(object)
 
 AnnotationFilter(expr)
@@ -144,6 +147,9 @@ The constructor function return an object extending
     \code{AnnotationFilter}. For the return value of the other methods see
     the methods' descriptions.
 
+\code{character(1)} that can be used as input to a \code{dplyr} 
+     fitlter.
+
 \code{AnnotationFilter} returns an
     \code{\link{AnnotationFilter}} or an \code{\link{AnnotationFilterList}}.
 }
@@ -176,6 +182,10 @@ supported filters for the specific resource.
 
 \code{feature()} get the \code{feature} for the
     \code{GRangesFilter} \code{object}.
+
+Converts an \code{AnnotationFilter} object to a 
+     \code{character(1)} giving an equation that can be used as input to
+     a \code{dplyr} filter.
 
 \code{AnnotationFilter} \emph{translates} a filter
     expression such as \code{~ gene_id == "BCL2"} into a filter object
@@ -216,6 +226,9 @@ sf
 gsf <- GeneStartFilter(10000, condition = ">")
 gsf
 
+filter <- SymbolFilter("ADA", "==")
+result <- convertFilter(filter)
+result
 supportedFilters()
 
 ## Convert a filter expression based on a gene ID to a GeneIdFilter

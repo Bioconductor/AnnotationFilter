@@ -11,8 +11,11 @@ setGeneric("not", function(object, ...) standardGeneric("not"))
 
 setGeneric("simplify", function(object, ...) standardGeneric("simplify"))
 
+setGeneric("convertFilter", function(object, ...)
+    standardGeneric("convertFilter"))
+
 setGeneric("distributeNegation", function(object, ...)
-           standardGeneric("distributeNegation"))
+    standardGeneric("distributeNegation"))
 
 setGeneric("supportedFilters", function(object, ...)
     standardGeneric("supportedFilters"))

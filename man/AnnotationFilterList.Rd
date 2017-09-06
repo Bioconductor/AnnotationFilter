@@ -10,10 +10,9 @@
 \alias{logicOp}
 \alias{not,AnnotationFilterList-method}
 \alias{not}
-\alias{simplify,AnnotationFilterList-method}
-\alias{simplify}
 \alias{distributeNegation,AnnotationFilterList-method}
 \alias{distributeNegation}
+\alias{convertFilter,AnnotationFilterList-method}
 \alias{show,AnnotationFilterList-method}
 \title{Combining annotation filters}
 \usage{
@@ -26,10 +25,10 @@ AnnotationFilterList(..., logicOp = character(), logOp = character(),
 
 \S4method{not}{AnnotationFilterList}(object)
 
-\S4method{simplify}{AnnotationFilterList}(object)
-
 \S4method{distributeNegation}{AnnotationFilterList}(object,
-  prior_negation = FALSE)
+  .prior_negation = FALSE)
+
+\S4method{convertFilter}{AnnotationFilterList}(object)
 
 \S4method{show}{AnnotationFilterList}(object)
 }
@@ -57,8 +56,8 @@ of \code{AnnotationFilters} are to be negated.}
 
 \item{object}{An object of class \code{AnnotationFilterList}.}
 
-\item{prior_negation}{whether the previous \code{AnnotationFilterList} object
-was negated (meant to not be utilized by user).}
+\item{.prior_negation}{whether the previous \code{AnnotationFilterList}
+object was negated (meant to not be utilized by user).}
 }
 \value{
 \code{AnnotationFilterList} returns an \code{AnnotationFilterList}.
@@ -77,6 +76,9 @@ was negated (meant to not be utilized by user).}
      object but all \code{!}'s are distributed out of the
      \code{AnnotationFilterList} object and to the nested
      \code{AnnotationFilter} objects.
+
+\code{character(1)} that can be used as input to a \code{dplyr}
+     filter.
 }
 \description{
 The \code{AnnotationFilterList} allows to combine
@@ -99,7 +101,9 @@ The \code{AnnotationFilterList} allows to combine
 
 
 
-
+Converts an \code{AnnotationFilterList} object to a
+     \code{character(1)} giving an equation that can be used as input to
+     a \code{dplyr} filter.
 }
 \note{
 The \code{AnnotationFilterList} does not support containing empty
@@ -130,6 +134,12 @@ afl <- AnnotationFilterList(gf, tbtf, SeqNameFilter("Y"),
                             logicOp = c("&", "|"))
 afl
 
+afl <- AnnotationFilter(~!(symbol == 'ADA' | symbol \%startsWith\% 'SNORD'))
+afl <- distributeNegation(afl)
+afl
+afl <- AnnotationFilter(~symbol=="ADA" & tx_id > "400000")
+result <- convertFilter(afl)
+result
 }
 \seealso{
 \code{\link{supportedFilters}} for available

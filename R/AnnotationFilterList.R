@@ -192,20 +192,34 @@ setMethod("logicOp", "AnnotationFilterList", .logOp)
 #' @export not
 setMethod("not", "AnnotationFilterList", .not)
 
-#' @rdname AnnotationFilterList
-#'
-#' @aliases simplify
-#'
-#' @description
-#'
-#' @export
-setMethod("simplify", "AnnotationFilterList", function(object) {
-    if(length(object)==0)
-        return(object)
-    if(length(object)==c(1, 2))
-        return(AnnotationFilterList())
-    return(AnnotationFilterList())
-})
+.distributeNegation <- function(object, .prior_negation=FALSE)
+{
+    if(.not(object))
+        .prior_negation <- ifelse(.prior_negation, FALSE, TRUE)
+    filters <- lapply(object, function(x){
+        if(is(x, "AnnotationFilterList"))
+            distributeNegation(x, .prior_negation)   
+        else{
+            if(.prior_negation) x@not <- ifelse(x@not, FALSE, TRUE)
+            x
+        }
+    })
+    ops <- vapply(logicOp(object), function(x) {
+        if(.prior_negation){
+            if(x == '&')
+                '|'
+            else
+                '&'
+        }
+        else
+            x
+    }
+        ,character(1)
+    )
+    ops <- unname(ops)
+    filters[['logicOp']] <- ops
+    do.call("AnnotationFilterList", filters)
+}
 
 #' @rdname AnnotationFilterList
 #'
@@ -213,8 +227,8 @@ setMethod("simplify", "AnnotationFilterList", function(object) {
 #'
 #' @description
 #'
-#' @param prior_negation whether the previous \code{AnnotationFilterList} object
-#'      was negated (meant to not be utilized by user).
+#' @param .prior_negation whether the previous \code{AnnotationFilterList}
+#'       object was negated (meant to not be utilized by user).
 #'
 #' @return \code{AnnotationFilterList} object with DeMorgan's law applied to
 #'      it such that it is equal to the original \code{AnnotationFilterList}
@@ -222,27 +236,68 @@ setMethod("simplify", "AnnotationFilterList", function(object) {
 #'      \code{AnnotationFilterList} object and to the nested
 #'      \code{AnnotationFilter} objects.
 #'
+#' @examples
+#' afl <- AnnotationFilter(~!(symbol == 'ADA' | symbol %startsWith% 'SNORD'))
+#' afl <- distributeNegation(afl)
+#' afl
 #' @export
-setMethod('distributeNegation', signature("AnnotationFilterList"),
-          function(object, prior_negation=FALSE){
-    if(.not(object)) prior_negation <- ifelse(prior_negation, FALSE, TRUE)
-    filters <- lapply(object, function(x){
-        if(is(x, "AnnotationFilterList"))
-            distributeNegation(x, prior_negation)   
-        else{
-            if(prior_negation) x@not <- ifelse(x@not, FALSE, TRUE)
-            x
+setMethod("distributeNegation", "AnnotationFilterList", .distributeNegation)
+
+.convertFilterList <- function(object, show, granges=list(), nested=FALSE)
+{
+    filters <- value(object)
+    result <- character(length(filters))
+    for (i in seq_len(length(filters))) {
+        if (is(filters[[i]], "AnnotationFilterList")) {
+            res <- .convertFilterList(filters[[i]], show=show, granges=granges,
+                nested=TRUE)
+            granges <- c(granges, res[[2]])
+            result[i] <- res[[1]]
         }
-    })
-    ops <- vapply(logicOp(object), function(x) {
-            if(prior_negation){
-                if(x == '&') '|'
-                else '&'
-            } else x
+        else if (field(filters[[i]]) == "granges") {
+            if(!show)
+                result[i] <- .convertFilter(filters[[i]])
+            else {
+                nam <- paste0("GRangesFilter_", length(granges) + 1)
+                granges <- c(granges, list(filters[[i]]))
+                result[i] <- nam
+            }
+        }
+        else
+            result[i] <- .convertFilter(filters[[i]])
     }
-        , character(1))
-    filters[['logicOp']] <- ops
-    do.call("AnnotationFilterList", filters)
+
+    result_last <- tail(result, 1)
+    result <- head(result, -1)
+    result <- c(rbind(result, logicOp(object)))
+    result <- c(result, result_last)
+    result <- paste(result, collapse=" ")
+    if(nested || object@not)
+        result <- paste0("(", result, ")")
+    if(object@not)
+        result <- paste0("!", result)
+        
+    list(result, granges)
+}
+
+#' @rdname AnnotationFilterList
+#'
+#' @description Converts an \code{AnnotationFilterList} object to a
+#'      \code{character(1)} giving an equation that can be used as input to
+#'      a \code{dplyr} filter.
+#'
+#' @return \code{character(1)} that can be used as input to a \code{dplyr}
+#'      filter.
+#'
+#' @examples
+#' afl <- AnnotationFilter(~symbol=="ADA" & tx_id > "400000")
+#' result <- convertFilter(afl)
+#' result
+#' @export
+setMethod("convertFilter", "AnnotationFilterList", function(object)
+{
+    result <- .convertFilterList(object, show=FALSE)
+    result[[1]]
 })
 
 #' @rdname AnnotationFilterList
@@ -251,23 +306,18 @@ setMethod('distributeNegation', signature("AnnotationFilterList"),
 #'
 #' @importFrom utils tail
 #' @export
-setMethod("show", "AnnotationFilterList",
-    function(object)
+setMethod("show", "AnnotationFilterList", function(object)
 {
-    cat(
-        "class: ", class(object), "\n",
-        "length: ", length(object), "\n",
-        sep = ""
-    )
-    if(not(object))
-        cat("NOT\n")
-    if (length(object)) {
-        cat("filters:\n\n")
-        show(object[[1]])
-        for (i in tail(seq_along(object), -1L)) {
-            cat("\n", logicOp(object)[i - 1L], "\n\n")
-            show(object[[i]])
-        }
+    result <- .convertFilterList(object, show=TRUE)
+    granges <- result[[2]]
+    result <- result[[1]]
+    cat("AnnotationFilterList of length", length(object), "\n")
+    cat(result)
+    cat("\n")
+    for(i in seq_len(length(granges))) {
+        cat("\n")
+        cat("Symbol: GRangesFilter_", i, "\n", sep="")
+        show(granges[[1]])
+        cat("\n")
     }
 })
-

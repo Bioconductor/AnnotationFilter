@@ -74,3 +74,48 @@ test_that("fieldToClass works", {
     expect_identical(AnnotationFilter:::.fieldToClass("gene_seq_start"),
                      "GeneSeqStartFilter")
 })
+
+test_that("convertFilter Works", {
+    expect_identical(convertFilter(SymbolFilter("ADA")), "symbol == 'ADA'")
+    expect_identical(convertFilter(SymbolFilter("ADA", "!=")),
+        "symbol != 'ADA'")
+    expect_identical(convertFilter(SymbolFilter("ADA", "startsWith")),
+        "symbol %like% 'ADA%'")
+    expect_identical(convertFilter(SymbolFilter("ADA", "endsWith")),
+        "symbol %like% '%ADA'")
+    expect_identical(convertFilter(SymbolFilter("ADA", "contains")),
+        "symbol %like% 'ADA'")
+    
+    expect_identical(convertFilter(TxIdFilter(1000)), "tx_id == '1000'")
+    expect_identical(convertFilter(TxIdFilter(1000, "!=")), "tx_id != '1000'")
+    expect_identical(convertFilter(TxIdFilter(1000, ">")), "tx_id > 1000")
+    expect_identical(convertFilter(TxIdFilter(1000, "<")), "tx_id < 1000")
+    expect_identical(convertFilter(TxIdFilter(1000, ">=")), "tx_id >= 1000")
+    expect_identical(convertFilter(TxIdFilter(1000, "<=")), "tx_id <= 1000")
+
+    ## NOT works    
+
+    expect_identical(convertFilter(SymbolFilter("ADA", not=TRUE)),
+        "!symbol == 'ADA'")
+    expect_identical(convertFilter(SymbolFilter("ADA", "!=", not=TRUE)),
+        "!symbol != 'ADA'")
+    expect_identical(convertFilter(SymbolFilter("ADA", "startsWith", not=TRUE)),
+        "!symbol %like% 'ADA%'")
+    expect_identical(convertFilter(SymbolFilter("ADA", "endsWith", not=TRUE)),
+        "!symbol %like% '%ADA'")
+    expect_identical(convertFilter(SymbolFilter("ADA", "contains", not=TRUE)),
+        "!symbol %like% 'ADA'")
+    
+    expect_identical(convertFilter(TxIdFilter(1000, not=TRUE)),
+        "!tx_id == '1000'")
+    expect_identical(convertFilter(TxIdFilter(1000, "!=", not=TRUE)),
+        "!tx_id != '1000'")
+    expect_identical(convertFilter(TxIdFilter(1000, ">", not=TRUE)),
+        "!tx_id > 1000")
+    expect_identical(convertFilter(TxIdFilter(1000, "<", not=TRUE)),
+        "!tx_id < 1000")
+    expect_identical(convertFilter(TxIdFilter(1000, ">=", not=TRUE)),
+        "!tx_id >= 1000")
+    expect_identical(convertFilter(TxIdFilter(1000, "<=", not=TRUE)),
+        "!tx_id <= 1000")
+})

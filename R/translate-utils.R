@@ -38,9 +38,12 @@
     force(sep)
     function(x) {
         if(is(x, "AnnotationFilterList") || is(x, "AnnotationFilter")) {
-            if(x@not) x@not <- FALSE
-            else x@not <- TRUE
-            if(is(x, "AnnotationFilterList")) x@.groupingFlag <- FALSE
+            if(x@not)
+                x@not <- FALSE
+            else
+                x@not <- TRUE
+            if(is(x, "AnnotationFilterList"))
+                x@.groupingFlag <- FALSE
             return(x)
         }
 #       else if (is(x, "AnnotationFilter")) 
@@ -53,7 +56,13 @@
 .parenthesis_op <- function(sep) {
     force(sep)
     function(x) {
-        AnnotationFilterList(x, .groupingFlag=FALSE)
+        if (is(x, "AnnotationFilterList") & x@.groupingFlag) {
+            x@.groupingFlag <- FALSE
+            x
+            #AnnotationFilterList(x, .groupingFlag=FALSE)
+        }
+        else
+            AnnotationFilterList(x, .groupingFlag=FALSE)
     }
 }
 
@@ -99,6 +108,10 @@
 .LOG_OP_REG$`<` <- .binary_op("<")
 .LOG_OP_REG$`>=` <- .binary_op(">=")
 .LOG_OP_REG$`<=` <- .binary_op("<=")
+## Custom binary operators 
+.LOG_OP_REG$`%startsWith%` <- .binary_op("startsWith")
+.LOG_OP_REG$`%endsWith%` <- .binary_op("endsWith")
+.LOG_OP_REG$`%contains%` <- .binary_op("contains")
 ## not conditional.
 .LOG_OP_REG$`!` <- .not_op("!")
 ## parenthesis
@@ -106,6 +119,10 @@
 ## combine filters
 .LOG_OP_REG$`&` <- .combine_op("&")
 .LOG_OP_REG$`|` <- .combine_op("|")
+
+`%startsWith%` <- function(e1, e2){}
+`%endsWith%` <- function(e1, e2){}
+`%contains%` <- function(e1, e2){}
 
 #' @rdname AnnotationFilter
 #'

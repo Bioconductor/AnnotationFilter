@@ -100,11 +100,11 @@ NULL
 .FIELD <- list(
     CharacterFilter = c(
         "exon_id", "exon_name", "gene_id", "genename", "gene_biotype",
-        "entrez", "symbol", "tx_id", "tx_name", "tx_biotype",
+        "entrez", "symbol", "tx_name", "tx_biotype",
         "protein_id", "uniprot", "seq_name", "seq_strand"),
     IntegerFilter = c(
         "cds_start", "cds_end", "exon_start", "exon_rank", "exon_end",
-        "gene_start", "gene_end", "tx_start", "tx_end")
+        "gene_start", "gene_end", "tx_id", "tx_start", "tx_end")
 )
 
 .valid_condition <- function(condition, class) {
@@ -409,10 +409,11 @@ NULL
             }
         }
 
-    function(value, condition = "==") {
+    function(value, condition = "==", not = "FALSE") {
         value <- as.value(value)
         condition <- as.character(condition)
-        new(class, field=field, condition = condition, value=value)
+        not <- as.logical(not)
+        new(class, field=field, condition = condition, value=value, not=not)
     }
 }
 
@@ -434,8 +435,64 @@ local({
 })
 
 ############################################################
-## Utilities - supportedFilters
+## Utilities 
 ##
+
+.convertFilter <- function(object) {
+    field <- field(object)
+    if (field == "granges")
+        stop("GRangesFilter cannot be converted using convertFilter().")
+    value <- value(object)
+    condition <- condition(object)
+    not <- not(object)
+
+    op <- switch(
+        condition,
+        "==" = if (length(value) == 1) "==" else "%in%",
+        "!=" = if (length(value) == 1) "!=" else "%in%",
+        "startsWith" = "%like%",
+        "endsWith" = "%like%",
+        "contains" = "%like%"
+    )
+
+    not_val <- ifelse(not, '!', '')
+
+    if (condition %in% c("==", "!="))
+        value <- paste0("'", value, "'", collapse=", ")
+
+    if (!is.null(op) && op %in% c("==", "!="))
+        sprintf("%s%s %s %s", not_val, field, op, value)
+    else if ((condition == "==") && op == "%in%")
+        sprintf("%s%s %s c(%s)", not_val, field, op, value)
+    else if ((condition == "!=") && op == "%in%")
+        if(not) sprintf("%s %s c(%s)", field, op, value)
+        else sprintf("!%s%s %s c(%s)", not_val, field, op, value)
+    else if (condition == "startsWith")
+        sprintf("%s%s %s '%s%%'", not_val, field, op, value)
+    else if (condition == "endsWith")
+        sprintf("%s%s %s '%%%s'", not_val, field, op, value)
+    else if (condition == "contains")
+        sprintf("%s%s %s '%s'", not_val, field, op, value)
+    else if (condition %in% c(">", "<", ">=", "<=")) {
+        sprintf("%s%s %s %s", not_val, field, condition, as.integer(value))
+    }
+}
+
+#' @rdname AnnotationFilter
+#'
+#' @description Converts an \code{AnnotationFilter} object to a 
+#'      \code{character(1)} giving an equation that can be used as input to
+#'      a \code{dplyr} filter.
+#'
+#' @return \code{character(1)} that can be used as input to a \code{dplyr} 
+#'      fitlter.
+#'
+#' @examples
+#' filter <- SymbolFilter("ADA", "==")
+#' result <- convertFilter(filter)
+#' result
+#' @export
+setMethod("convertFilter", "AnnotationFilter", .convertFilter)
 
 .FILTERS_WO_FIELD <- c("GRangesFilter")
 
@@ -444,7 +501,7 @@ local({
     filters <- .fieldToClass(fields)
     d <- data.frame(
       filter=c(filters, .FILTERS_WO_FIELD),
-      field=c(fields, rep(NA, length(.FILTERS_WO_FIELD)))
+      field=c(fields, "granges") #rep(NA, length(.FILTERS_WO_FIELD)))
     )
     d[order(d$filter),]
 }

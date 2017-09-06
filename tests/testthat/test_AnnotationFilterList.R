@@ -40,12 +40,32 @@ test_that("empty elements in AnnotationFilterList", {
     afl <- AnnotationFilterList(GeneIdFilter(4), empty_afl)
     expect_true(length(afl) == 1)
     afl <- AnnotationFilterList(GeneIdFilter(4),
-                                AnnotationFilter(~ gene_id == 3 | seq_name == 4),
-                                empty_afl)
+        AnnotationFilter(~ gene_id == 3 | seq_name == 4),empty_afl)
     expect_true(length(afl) == 2)
     ## Check validate.
     afl@.Data <- c(afl@.Data, list(empty_afl))
     ## Fix also the logOp.
     afl@logOp <- c(afl@logOp, "|")
     expect_error(validObject(afl))
+})
+
+test_that("convertFilter works", {
+    smbl <- SymbolFilter("ADA")
+    txid <- TxIdFilter(1000)
+    gr <- GRangesFilter(GenomicRanges::GRanges("chr15:25062333-25065121"))
+
+    expect_identical(convertFilter(AnnotationFilter(~smbl | txid)),
+        "symbol == 'ADA' | tx_id == '1000'")
+    expect_identical(convertFilter(AnnotationFilter(~smbl & (smbl | txid))),
+        "symbol == 'ADA' & (symbol == 'ADA' | tx_id == '1000')")
+    expect_identical(convertFilter(AnnotationFilter(~smbl & !(smbl | txid))),
+        "symbol == 'ADA' & !(symbol == 'ADA' | tx_id == '1000')")
+    expect_error(convertFilter(AnnotationFilter(smbl | (txid & gr))))
+    
+})
+
+test_that("distributeNegation works", {
+    afl <- AnnotationFilter(~!(symbol == 'ADA' | symbol %startsWith% 'SNORD'))
+    afl2 <- AnnotationFilter(~!symbol == 'ADA' & !symbol %startsWith% 'SNORD')
+    expect_identical(distributeNegation(afl), afl2)
 })
