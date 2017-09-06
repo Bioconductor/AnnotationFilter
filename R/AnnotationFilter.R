@@ -49,29 +49,29 @@
 #'
 #' @usage
 #'
-#' CdsStartFilter(value, condition = "==")
-#' CdsEndFilter(value, condition = "==")
-#' ExonIdFilter(value, condition = "==")
-#' ExonNameFilter(value, condition = "==")
-#' ExonRankFilter(value, condition = "==")
-#' ExonStartFilter(value, condition = "==")
-#' ExonEndFilter(value, condition = "==")
-#' GeneIdFilter(value, condition = "==")
-#' GenenameFilter(value, condition = "==")
-#' GeneBiotypeFilter(value, condition = "==")
-#' GeneStartFilter(value, condition = "==")
-#' GeneEndFilter(value, condition = "==")
-#' EntrezFilter(value, condition = "==")
-#' SymbolFilter(value, condition = "==")
-#' TxIdFilter(value, condition = "==")
-#' TxNameFilter(value, condition = "==")
-#' TxBiotypeFilter(value, condition = "==")
-#' TxStartFilter(value, condition = "==")
-#' TxEndFilter(value, condition = "==")
-#' ProteinIdFilter(value, condition = "==")
-#' UniprotFilter(value, condition = "==")
-#' SeqNameFilter(value, condition = "==")
-#' SeqStrandFilter(value, condition = "==")
+#' CdsStartFilter(value, condition = "==", not = FALSE)
+#' CdsEndFilter(value, condition = "==", not = FALSE)
+#' ExonIdFilter(value, condition = "==", not = FALSE)
+#' ExonNameFilter(value, condition = "==", not = FALSE)
+#' ExonRankFilter(value, condition = "==", not = FALSE)
+#' ExonStartFilter(value, condition = "==", not = FALSE)
+#' ExonEndFilter(value, condition = "==", not = FALSE)
+#' GeneIdFilter(value, condition = "==", not = FALSE)
+#' GenenameFilter(value, condition = "==", not = FALSE)
+#' GeneBiotypeFilter(value, condition = "==", not = FALSE)
+#' GeneStartFilter(value, condition = "==", not = FALSE)
+#' GeneEndFilter(value, condition = "==", not = FALSE)
+#' EntrezFilter(value, condition = "==", not = FALSE)
+#' SymbolFilter(value, condition = "==", not = FALSE)
+#' TxIdFilter(value, condition = "==", not = FALSE)
+#' TxNameFilter(value, condition = "==", not = FALSE)
+#' TxBiotypeFilter(value, condition = "==", not = FALSE)
+#' TxStartFilter(value, condition = "==", not = FALSE)
+#' TxEndFilter(value, condition = "==", not = FALSE)
+#' ProteinIdFilter(value, condition = "==", not = FALSE)
+#' UniprotFilter(value, condition = "==", not = FALSE)
+#' SeqNameFilter(value, condition = "==", not = FALSE)
+#' SeqStrandFilter(value, condition = "==", not = FALSE)
 #'
 #' @param value \code{character()}, \code{integer()}, or
 #'     \code{GRanges()} value for the filter
@@ -82,6 +82,10 @@
 #'     or \code{"<="}. For \code{CharacterFilter}, one of \code{"=="},
 #'     \code{"!="}, \code{"startsWith"}, \code{"endsWith"} or \code{"contains"}.
 #'     Default condition is \code{"=="}.
+#'
+#' @param not \code{logical(1)} whether the \code{AnnotationFilter} is negated.
+#'     \code{TRUE} indicates is negated (!). \code{FALSE} indicates not
+#'     negated. Default not is \code{FALSE}.
 #'
 #' @return The constructor function return an object extending
 #'     \code{AnnotationFilter}. For the return value of the other methods see
@@ -409,7 +413,7 @@ NULL
             }
         }
 
-    function(value, condition = "==", not = "FALSE") {
+    function(value, condition = "==", not = FALSE) {
         value <- as.value(value)
         condition <- as.character(condition)
         not <- as.logical(not)

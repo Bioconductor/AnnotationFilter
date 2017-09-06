@@ -20,7 +20,6 @@ Description: This package provides class and other infrastructure to
 Depends:
     R (>= 3.4.0)
 Imports:
-    S4Vectors,
     utils,
     methods,
     GenomicRanges,

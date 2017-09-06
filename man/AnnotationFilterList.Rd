@@ -13,6 +13,7 @@
 \alias{distributeNegation,AnnotationFilterList-method}
 \alias{distributeNegation}
 \alias{convertFilter,AnnotationFilterList-method}
+\alias{convertFilter}
 \alias{show,AnnotationFilterList-method}
 \title{Combining annotation filters}
 \usage{
@@ -56,8 +57,7 @@ of \code{AnnotationFilters} are to be negated.}
 
 \item{object}{An object of class \code{AnnotationFilterList}.}
 
-\item{.prior_negation}{whether the previous \code{AnnotationFilterList}
-object was negated (meant to not be utilized by user).}
+\item{.prior_negation}{\code{logical(1)} unused argument.}
 }
 \value{
 \code{AnnotationFilterList} returns an \code{AnnotationFilterList}.

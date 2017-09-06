@@ -227,8 +227,7 @@ setMethod("not", "AnnotationFilterList", .not)
 #'
 #' @description
 #'
-#' @param .prior_negation whether the previous \code{AnnotationFilterList}
-#'       object was negated (meant to not be utilized by user).
+#' @param .prior_negation \code{logical(1)} unused argument.
 #'
 #' @return \code{AnnotationFilterList} object with DeMorgan's law applied to
 #'      it such that it is equal to the original \code{AnnotationFilterList}
@@ -281,6 +280,8 @@ setMethod("distributeNegation", "AnnotationFilterList", .distributeNegation)
 }
 
 #' @rdname AnnotationFilterList
+#'
+#' @aliases convertFilter
 #'
 #' @description Converts an \code{AnnotationFilterList} object to a
 #'      \code{character(1)} giving an equation that can be used as input to
