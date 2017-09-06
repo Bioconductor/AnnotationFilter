@@ -56,10 +56,9 @@
 .parenthesis_op <- function(sep) {
     force(sep)
     function(x) {
-        if (is(x, "AnnotationFilterList") & x@.groupingFlag) {
+        if (is(x, "AnnotationFilterList")) {
             x@.groupingFlag <- FALSE
             x
-            #AnnotationFilterList(x, .groupingFlag=FALSE)
         }
         else
             AnnotationFilterList(x, .groupingFlag=FALSE)
