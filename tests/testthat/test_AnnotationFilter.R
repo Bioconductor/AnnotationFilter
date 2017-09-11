@@ -86,14 +86,17 @@ test_that("convertFilter Works", {
     expect_identical(convertFilter(SymbolFilter("ADA", "contains")),
         "symbol %like% 'ADA'")
     
-    expect_identical(convertFilter(TxIdFilter(1000)), "tx_id == '1000'")
-    expect_identical(convertFilter(TxIdFilter(1000, "!=")), "tx_id != '1000'")
-    expect_identical(convertFilter(TxIdFilter(1000, ">")), "tx_id > 1000")
-    expect_identical(convertFilter(TxIdFilter(1000, "<")), "tx_id < 1000")
-    expect_identical(convertFilter(TxIdFilter(1000, ">=")), "tx_id >= 1000")
-    expect_identical(convertFilter(TxIdFilter(1000, "<=")), "tx_id <= 1000")
+    expect_identical(convertFilter(TxStartFilter(1000)), "tx_start == '1000'")
+    expect_identical(convertFilter(TxStartFilter(1000, "!=")),
+        "tx_start != '1000'")
+    expect_identical(convertFilter(TxStartFilter(1000, ">")), "tx_start > 1000")
+    expect_identical(convertFilter(TxStartFilter(1000, "<")), "tx_start < 1000")
+    expect_identical(convertFilter(TxStartFilter(1000, ">=")),
+        "tx_start >= 1000")
+    expect_identical(convertFilter(TxStartFilter(1000, "<=")),
+        "tx_start <= 1000")
 
-    ## NOT works    
+    ## check NOT works    
 
     expect_identical(convertFilter(SymbolFilter("ADA", not=TRUE)),
         "!symbol == 'ADA'")
@@ -106,16 +109,16 @@ test_that("convertFilter Works", {
     expect_identical(convertFilter(SymbolFilter("ADA", "contains", not=TRUE)),
         "!symbol %like% 'ADA'")
     
-    expect_identical(convertFilter(TxIdFilter(1000, not=TRUE)),
-        "!tx_id == '1000'")
-    expect_identical(convertFilter(TxIdFilter(1000, "!=", not=TRUE)),
-        "!tx_id != '1000'")
-    expect_identical(convertFilter(TxIdFilter(1000, ">", not=TRUE)),
-        "!tx_id > 1000")
-    expect_identical(convertFilter(TxIdFilter(1000, "<", not=TRUE)),
-        "!tx_id < 1000")
-    expect_identical(convertFilter(TxIdFilter(1000, ">=", not=TRUE)),
-        "!tx_id >= 1000")
-    expect_identical(convertFilter(TxIdFilter(1000, "<=", not=TRUE)),
-        "!tx_id <= 1000")
+    expect_identical(convertFilter(TxStartFilter(1000, not=TRUE)),
+        "!tx_start == '1000'")
+    expect_identical(convertFilter(TxStartFilter(1000, "!=", not=TRUE)),
+        "!tx_start != '1000'")
+    expect_identical(convertFilter(TxStartFilter(1000, ">", not=TRUE)),
+        "!tx_start > 1000")
+    expect_identical(convertFilter(TxStartFilter(1000, "<", not=TRUE)),
+        "!tx_start < 1000")
+    expect_identical(convertFilter(TxStartFilter(1000, ">=", not=TRUE)),
+        "!tx_start >= 1000")
+    expect_identical(convertFilter(TxStartFilter(1000, "<=", not=TRUE)),
+        "!tx_start <= 1000")
 })

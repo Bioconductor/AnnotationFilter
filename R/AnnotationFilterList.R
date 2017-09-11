@@ -291,7 +291,7 @@ setMethod("distributeNegation", "AnnotationFilterList", .distributeNegation)
 #'      filter.
 #'
 #' @examples
-#' afl <- AnnotationFilter(~symbol=="ADA" & tx_id > "400000")
+#' afl <- AnnotationFilter(~symbol=="ADA" & tx_start > "400000")
 #' result <- convertFilter(afl)
 #' result
 #' @export
