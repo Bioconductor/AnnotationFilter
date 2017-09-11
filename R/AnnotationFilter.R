@@ -104,11 +104,11 @@ NULL
 .FIELD <- list(
     CharacterFilter = c(
         "exon_id", "exon_name", "gene_id", "genename", "gene_biotype",
-        "entrez", "symbol", "tx_name", "tx_biotype",
+        "entrez", "symbol", "tx_id", "tx_name", "tx_biotype",
         "protein_id", "uniprot", "seq_name", "seq_strand"),
     IntegerFilter = c(
         "cds_start", "cds_end", "exon_start", "exon_rank", "exon_end",
-        "gene_start", "gene_end", "tx_id", "tx_start", "tx_end")
+        "gene_start", "gene_end", "tx_start", "tx_end")
 )
 
 .valid_condition <- function(condition, class) {
