@@ -295,7 +295,8 @@ setMethod("distributeNegation", "AnnotationFilterList", .distributeNegation)
 #' result <- convertFilter(afl)
 #' result
 #' @export
-setMethod("convertFilter", "AnnotationFilterList", function(object)
+setMethod("convertFilter", signature(object = "AnnotationFilterList",
+                                     db = "missing") , function(object)
 {
     result <- .convertFilterList(object, show=FALSE)
     result[[1]]
