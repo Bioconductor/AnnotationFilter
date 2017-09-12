@@ -489,14 +489,15 @@ local({
 #'      a \code{dplyr} filter.
 #'
 #' @return \code{character(1)} that can be used as input to a \code{dplyr} 
-#'      fitlter.
+#'      filter.
 #'
 #' @examples
 #' filter <- SymbolFilter("ADA", "==")
 #' result <- convertFilter(filter)
 #' result
 #' @export
-setMethod("convertFilter", "AnnotationFilter", .convertFilter)
+setMethod("convertFilter", signature(object = "AnnotationFilter",
+                                     db = "missing"), .convertFilter)
 
 .FILTERS_WO_FIELD <- c("GRangesFilter")
 

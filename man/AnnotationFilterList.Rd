@@ -12,7 +12,7 @@
 \alias{not}
 \alias{distributeNegation,AnnotationFilterList-method}
 \alias{distributeNegation}
-\alias{convertFilter,AnnotationFilterList-method}
+\alias{convertFilter,AnnotationFilterList,ANY-method}
 \alias{convertFilter}
 \alias{show,AnnotationFilterList-method}
 \title{Combining annotation filters}
@@ -29,7 +29,7 @@ AnnotationFilterList(..., logicOp = character(), logOp = character(),
 \S4method{distributeNegation}{AnnotationFilterList}(object,
   .prior_negation = FALSE)
 
-\S4method{convertFilter}{AnnotationFilterList}(object)
+\S4method{convertFilter}{AnnotationFilterList,ANY}(object)
 
 \S4method{show}{AnnotationFilterList}(object)
 }

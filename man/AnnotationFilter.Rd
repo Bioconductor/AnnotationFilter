@@ -69,7 +69,7 @@
 \alias{GRangesFilter}
 \alias{feature}
 \alias{AnnotationFilter}
-\alias{convertFilter,AnnotationFilter-method}
+\alias{convertFilter,AnnotationFilter,missing-method}
 \alias{supportedFilters,missing-method}
 \alias{AnnotationFilter}
 \title{Filters for annotation objects}
@@ -111,7 +111,7 @@ GRangesFilter(value, feature = "gene", type = c("any", "start", "end",
 
 feature(object)
 
-\S4method{convertFilter}{AnnotationFilter}(object)
+\S4method{convertFilter}{AnnotationFilter,missing}(object)
 
 \S4method{supportedFilters}{missing}(object)
 
@@ -152,7 +152,7 @@ The constructor function return an object extending
     the methods' descriptions.
 
 \code{character(1)} that can be used as input to a \code{dplyr} 
-     fitlter.
+     filter.
 
 \code{AnnotationFilter} returns an
     \code{\link{AnnotationFilter}} or an \code{\link{AnnotationFilterList}}.
