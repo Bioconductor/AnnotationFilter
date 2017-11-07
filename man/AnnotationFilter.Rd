@@ -28,6 +28,7 @@
 \alias{SeqStrandFilter}
 \alias{AnnotationFilter-class}
 \alias{CharacterFilter-class}
+\alias{DoubleFilter-class}
 \alias{IntegerFilter-class}
 \alias{CdsStartFilter-class}
 \alias{CdsEndFilter-class}
@@ -57,6 +58,7 @@
 \alias{show,CharacterFilter-method}
 \alias{show,IntegerFilter-method}
 \alias{show,GRangesFilter-method}
+\alias{show,DoubleFilter-method}
 \alias{condition,AnnotationFilter-method}
 \alias{condition}
 \alias{value,AnnotationFilter-method}
@@ -136,8 +138,8 @@ converted to an \code{AnnotationFilter} or \code{AnnotationFilterList}
 class. See below for examples.}
 
 \item{condition}{\code{character(1)} defining the condition to be
-used in the filter. For \code{IntegerFilter}, one of
-\code{"=="}, \code{"!="}, \code{">"}, \code{"<"}, \code{">="}
+used in the filter. For \code{IntegerFilter} or \code{DoubleFilter},
+one of \code{"=="}, \code{"!="}, \code{">"}, \code{"<"}, \code{">="}
 or \code{"<="}. For \code{CharacterFilter}, one of \code{"=="},
 \code{"!="}, \code{"startsWith"}, \code{"endsWith"} or \code{"contains"}.
 Default condition is \code{"=="}.}

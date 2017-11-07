@@ -242,6 +242,9 @@ setMethod("not", "AnnotationFilterList", .not)
 #' @export
 setMethod("distributeNegation", "AnnotationFilterList", .distributeNegation)
 
+#' @importFrom utils head
+#'
+#' @noRd
 .convertFilterList <- function(object, show, granges=list(), nested=FALSE)
 {
     filters <- value(object)
