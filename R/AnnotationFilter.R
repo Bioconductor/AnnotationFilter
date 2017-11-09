@@ -8,7 +8,7 @@
 #'     EntrezFilter SymbolFilter TxIdFilter TxNameFilter
 #'     TxBiotypeFilter TxStartFilter TxEndFilter ProteinIdFilter
 #'     UniprotFilter SeqNameFilter SeqStrandFilter
-#'     AnnotationFilter-class CharacterFilter-class
+#'     AnnotationFilter-class CharacterFilter-class DoubleFilter-class
 #'     IntegerFilter-class CdsStartFilter-class CdsEndFilter-class
 #'     ExonIdFilter-class ExonNameFilter-class ExonStartFilter-class
 #'     ExonEndFilter-class ExonRankFilter-class GeneIdFilter-class
@@ -20,6 +20,7 @@
 #'     SeqStrandFilter-class supportedFilters
 #'     show,AnnotationFilter-method show,CharacterFilter-method
 #'     show,IntegerFilter-method show,GRangesFilter-method
+#'     show,DoubleFilter-method
 #'
 #' @description
 #'
@@ -77,8 +78,8 @@
 #'     \code{GRanges()} value for the filter
 #'
 #' @param condition \code{character(1)} defining the condition to be
-#'     used in the filter. For \code{IntegerFilter}, one of
-#'     \code{"=="}, \code{"!="}, \code{">"}, \code{"<"}, \code{">="}
+#'     used in the filter. For \code{IntegerFilter} or \code{DoubleFilter},
+#'     one of \code{"=="}, \code{"!="}, \code{">"}, \code{"<"}, \code{">="}
 #'     or \code{"<="}. For \code{CharacterFilter}, one of \code{"=="},
 #'     \code{"!="}, \code{"startsWith"}, \code{"endsWith"} or \code{"contains"}.
 #'     Default condition is \code{"=="}.
@@ -97,6 +98,7 @@ NULL
 
 .CONDITION <- list(
     IntegerFilter = c("==", "!=", ">", "<", ">=", "<="),
+    DoubleFilter = c("==", "!=", ">", "<", ">=", "<="),
     CharacterFilter =  c("==", "!=", "startsWith", "endsWith", "contains"),
     GRangesFilter = c("any", "start", "end", "within", "equal")
 )
@@ -272,6 +274,26 @@ setValidity("IntegerFilter", function(object) {
 
 #' @export
 setMethod("show", "IntegerFilter", function(object) {
+    callNextMethod()
+    cat("value:", .value(object), "\n")
+})
+
+#' @exportClass DoubleFilter
+.DoubleFilter <- setClass(
+    "DoubleFilter",
+    contains = c("VIRTUAL", "AnnotationFilter"),
+    slots = c(value = "numeric"),
+    prototype = list(
+        value = double()
+    )
+)
+
+setValidity("DoubleFilter", function(object) {
+    .valid_condition(.condition(object), "DoubleFilter")
+})
+
+#' @export
+setMethod("show", "DoubleFilter", function(object) {
     callNextMethod()
     cat("value:", .value(object), "\n")
 })

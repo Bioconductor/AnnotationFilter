@@ -58,6 +58,9 @@ column. Based on the type of the input value, filter classes are divided into:
   `==`, `!=`, `>`, `<`, `>=` and `<=`. An example would be a `GeneStartFilter`
   that filters results on the (chromosomal) start coordinates of genes.
 
+- `DoubleFilter`: takes a single `numeric` as input and supports the conditions
+  `==`, `!=`, `>`, `<`, `>=` and `<=`.
+
 - `GRangesFilter`: is a special filter, as it takes a `GRanges` as `value` and
   performs the filtering on a combination of columns (i.e. start and end
   coordinate as well as sequence name and strand). To be consistent with the
