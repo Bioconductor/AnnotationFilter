@@ -1,7 +1,7 @@
 ---
 title: "Facilities for Filtering Bioconductor Annotation Resources"
 output:
-    BiocStyle::html_document2:
+    BiocStyle::html_document:
         toc_float: true
 vignette: >
     %\VignetteIndexEntry{Facilities for Filtering Bioconductor Annotation resources}
