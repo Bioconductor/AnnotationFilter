@@ -112,7 +112,7 @@ The \code{AnnotationFilterList} does not support containing empty
 }
 \examples{
 ## Create some AnnotationFilters
-gf <- GenenameFilter(c("BCL2", "BCL2L11"))
+gf <- GeneNameFilter(c("BCL2", "BCL2L11"))
 tbtf <- TxBiotypeFilter("protein_coding", condition = "!=")
 
 ## Combine both to an AnnotationFilterList. By default elements are combined

@@ -11,7 +11,7 @@
 \alias{ExonEndFilter}
 \alias{ExonRankFilter}
 \alias{GeneIdFilter}
-\alias{GenenameFilter}
+\alias{GeneNameFilter}
 \alias{GeneBiotypeFilter}
 \alias{GeneStartFilter}
 \alias{GeneEndFilter}
@@ -38,7 +38,7 @@
 \alias{ExonEndFilter-class}
 \alias{ExonRankFilter-class}
 \alias{GeneIdFilter-class}
-\alias{GenenameFilter-class}
+\alias{GeneNameFilter-class}
 \alias{GeneBiotypeFilter-class}
 \alias{GeneStartFilter-class}
 \alias{GeneEndFilter-class}
@@ -84,7 +84,7 @@ ExonRankFilter(value, condition = "==", not = FALSE)
 ExonStartFilter(value, condition = "==", not = FALSE)
 ExonEndFilter(value, condition = "==", not = FALSE)
 GeneIdFilter(value, condition = "==", not = FALSE)
-GenenameFilter(value, condition = "==", not = FALSE)
+GeneNameFilter(value, condition = "==", not = FALSE)
 GeneBiotypeFilter(value, condition = "==", not = FALSE)
 GeneStartFilter(value, condition = "==", not = FALSE)
 GeneEndFilter(value, condition = "==", not = FALSE)
