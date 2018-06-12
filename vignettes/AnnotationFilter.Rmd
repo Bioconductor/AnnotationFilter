@@ -304,12 +304,11 @@ dbListFields(dbcon, "gene_info")
 ```
 
 The *gene_info* table provides the official gene symbol and the gene name. The
-column *symbol* matches the default `field` value of the `SymbolFilter`. For the
-`GenenameFilter` we would have to re-map its default field `"genename"` to the
-database column *gene_name*. There are many possibilities to do this, one would
-be to implement an own function to extract the field from the `AnnotationFilter`
-classes specific to the database. This function eventually renames the extracted
-field value to match the corresponding name of the database column name.
+column *symbol* matches the default `field` value of the `SymbolFilter` as does
+the column *gene_name* for the *GeneNameFilter*. If the column in the database
+would not match the field of an `AnnotationFilter`, we would have to implement a
+function that maps the default field of the filter object to the database
+column. See the end of the section for an example.
 
 We next implement a simple `doExtractGene` function that retrieves data from the
 *gene_info* table and re-uses the `doFilter` function to extract specific
@@ -399,6 +398,25 @@ Be aware that the examples shown here are only for illustration purposes. In a
 real world situation additional factors, like combinations of filters, which
 database tables to join, which columns to be returned etc would have to be
 considered too.
+
+What if the database column on which we want to filter does not match the
+`field` of an `AnnotatioFilter`? If for example the database column is named
+*hgnc_symbol* instead of *symbol* we could for example package-internally
+overwrite the default `field` method for `SymbolFilter` to return the correct
+field for the database column.
+
+```{r symbol-overwrite}
+## Default method from AnnotationFilter:
+field(SymbolFilter("a"))
+
+## Overwrite the default method.
+setMethod("field", "SymbolFilter", function(object, ...) "hgnc_symbol")
+
+## Call to field returns now the "correct" database column
+field(SymbolFilter("a"))
+
+```
+
 
 # Session information
 

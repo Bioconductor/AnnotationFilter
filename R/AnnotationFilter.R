@@ -4,7 +4,7 @@
 #'
 #' @aliases CdsStartFilter CdsEndFilter ExonIdFilter ExonNameFilter
 #'     ExonStartFilter ExonEndFilter ExonRankFilter GeneIdFilter
-#'     GenenameFilter GeneBiotypeFilter GeneStartFilter GeneEndFilter
+#'     GeneNameFilter GeneBiotypeFilter GeneStartFilter GeneEndFilter
 #'     EntrezFilter SymbolFilter TxIdFilter TxNameFilter
 #'     TxBiotypeFilter TxStartFilter TxEndFilter ProteinIdFilter
 #'     UniprotFilter SeqNameFilter SeqStrandFilter
@@ -12,12 +12,12 @@
 #'     IntegerFilter-class CdsStartFilter-class CdsEndFilter-class
 #'     ExonIdFilter-class ExonNameFilter-class ExonStartFilter-class
 #'     ExonEndFilter-class ExonRankFilter-class GeneIdFilter-class
-#'     GenenameFilter-class GeneBiotypeFilter-class
+#'     GeneNameFilter-class GeneBiotypeFilter-class
 #'     GeneStartFilter-class GeneEndFilter-class EntrezFilter-class
 #'     SymbolFilter-class TxIdFilter-class TxNameFilter-class
 #'     TxBiotypeFilter-class TxStartFilter-class TxEndFilter-class
 #'     ProteinIdFilter-class UniprotFilter-class SeqNameFilter-class
-#'     SeqStrandFilter-class supportedFilters
+#'     SeqStrandFilter-class supportedFilters 
 #'     show,AnnotationFilter-method show,CharacterFilter-method
 #'     show,IntegerFilter-method show,GRangesFilter-method
 #'     show,DoubleFilter-method
@@ -58,7 +58,7 @@
 #' ExonStartFilter(value, condition = "==", not = FALSE)
 #' ExonEndFilter(value, condition = "==", not = FALSE)
 #' GeneIdFilter(value, condition = "==", not = FALSE)
-#' GenenameFilter(value, condition = "==", not = FALSE)
+#' GeneNameFilter(value, condition = "==", not = FALSE)
 #' GeneBiotypeFilter(value, condition = "==", not = FALSE)
 #' GeneStartFilter(value, condition = "==", not = FALSE)
 #' GeneEndFilter(value, condition = "==", not = FALSE)
@@ -105,7 +105,7 @@ NULL
 
 .FIELD <- list(
     CharacterFilter = c(
-        "exon_id", "exon_name", "gene_id", "genename", "gene_biotype",
+        "exon_id", "exon_name", "gene_id", "gene_name", "gene_biotype",
         "entrez", "symbol", "tx_id", "tx_name", "tx_biotype",
         "protein_id", "uniprot", "seq_name", "seq_strand"),
     IntegerFilter = c(
@@ -395,16 +395,16 @@ setMethod("show", "GRangesFilter", function(object) {
 #'
 #' @export CdsStartFilter CdsEndFilter ExonIdFilter ExonNameFilter
 #' @export ExonStartFilter ExonEndFilter ExonRankFilter GeneIdFilter
-#' @export GenenameFilter GeneBiotypeFilter GeneStartFilter
+#' @export GeneNameFilter GeneBiotypeFilter GeneStartFilter
 #' @export GeneEndFilter EntrezFilter SymbolFilter TxIdFilter
 #' @export TxNameFilter TxBiotypeFilter TxStartFilter TxEndFilter
 #' @export ProteinIdFilter UniprotFilter SeqNameFilter SeqStrandFilter
-#'
+#' 
 #' @importFrom methods new
 #'
 #' @exportClass CdsStartFilter CdsEndFilter ExonIdFilter
 #'     ExonNameFilter ExonStartFilter ExonEndFilter ExonRankFilter
-#'     GeneIdFilter GenenameFilter GeneBiotypeFilter GeneStartFilter
+#'     GeneIdFilter GeneNameFilter GeneBiotypeFilter GeneStartFilter
 #'     GeneEndFilter EntrezFilter SymbolFilter TxIdFilter TxNameFilter
 #'     TxBiotypeFilter TxStartFilter TxEndFilter ProteinIdFilter
 #'     UniprotFilter SeqNameFilter SeqStrandFilter
@@ -541,3 +541,44 @@ setMethod("convertFilter", signature(object = "AnnotationFilter",
 setMethod("supportedFilters", "missing", function(object) {
     .supportedFilters()
 })
+
+#' @rdname GenenameFilter
+#'
+#' @title DEPRECATED Gene name filter
+#'
+#' @aliases GenenameFilter-class
+#' 
+#' @description
+#'
+#' The `GenenameFilter` class and functions are deprecated. Please use the
+#' [GeneNameFilter()] instead.
+#'
+#' @param value `character()` value for the filter
+#'
+#' @param condition `character(1)` defining the condition to be
+#'     used in the filter. One of `"=="`, `"!="`, `"startsWith"`, `"endsWith"`
+#'     or `"contains"`. Default condition is `"=="`.
+#'
+#' @param not `logical(1)` whether the `AnnotationFilter` is negated.
+#'     `TRUE` indicates is negated (!). `FALSE` indicates not
+#'     negated. Default not is `FALSE`.
+#'
+#' @return The constructor function return a `GenenameFilter`.
+#'
+#' @md
+#' 
+#' @export
+#' 
+#' @exportClass GenenameFilter
+GenenameFilter <- function(value, condition = "==", not = FALSE) {
+    .Deprecated("GeneNameFilter")
+    new("GenenameFilter", value = value, condition = condition, not = not)
+}
+
+.GenenameFilter <- setClass(
+    "GenenameFilter",
+    contains = "CharacterFilter",
+    prototype = list(
+        field = "genename"
+    )
+)
